@@ -52,7 +52,6 @@ class ModuleName:
         if message.content.split(" ")[0][1:] in self.commands.keys():
             return self.commands[message.content.split(" ")[0][1:]](message)
 
-    # This function tests the basic message sending functionality.
     @staticmethod
     def hello(msg):
         return "Hello World."
@@ -74,5 +73,10 @@ latter gets access to the other modules. Please only use this if absolutely nece
 also expect some changes to this.
 
 ## TODO
-- Add load/reload/unload functionality
-- Add module context isolation
+- Bot
+  - Add load/reload/unload functionality
+  - Add module context isolation
+- Modules
+  - Browser for client side attacks
+  - CTF scoreboard
+  - Top 5 role
