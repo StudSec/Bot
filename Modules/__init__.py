@@ -1,4 +1,5 @@
 __all__ = [
     "registry",
-    "test"
+    "test",
+    "browser"
 ]

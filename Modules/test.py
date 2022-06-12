@@ -21,8 +21,6 @@ class TestModule:
         self.type = "Runtime"
 
     async def process_message(self, message):
-        if not self.enabled:
-            return
         if message.content.split(" ")[0][1:] in self.commands.keys():
             return self.commands[message.content.split(" ")[0][1:]](message)
 

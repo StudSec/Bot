@@ -26,7 +26,6 @@ python3 main.py
 This means they need to be set everytime.*
 
 ## Development
-
 If you would like to extend StudBots functionality, feel free to create a pull
 request. In the message please include a brief description of the functionality you
 added / changed, please note we will review any pull request and change/reject if 
@@ -52,7 +51,7 @@ import example
 class ModuleName:
     def __init__(self, client):
         self.commands = {
-            "hello": self.hello,
+            "command": self.command_function,
         }
         self.name = ["Module name"]
         self.category = ["Module Category"]
@@ -64,7 +63,7 @@ class ModuleName:
             return self.commands[message.content.split(" ")[0][1:]](message)
 
     @staticmethod
-    def hello(msg):
+    def command_function(msg):
         return "Hello World."
 
 registry.register(ModuleName)
