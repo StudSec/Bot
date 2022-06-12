@@ -24,6 +24,17 @@ python3 main.py
 
 *Note, for security reasons the environment variables will be removed at runtime.
 This means they need to be set everytime.*
+
+## Development
+
+If you would like to extend StudBots functionality, feel free to create a pull
+request. In the message please include a brief description of the functionality you
+added / changed, please note we will review any pull request and change/reject if 
+needed.
+
+If you'd like help developing, debugging, ranting or just want to lurk, you can
+join our development discord server. The invite code is `gNFQcvbevF`.
+
 ## Documentation
 If you want to add new functionality to the bot it is recommended to follow this 
 template.
