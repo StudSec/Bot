@@ -8,6 +8,9 @@ simply run
 pip3 install -r requirements.txt
 ```
 And you should be all set!
+
+*Note: Some modules might require additional dependencies.*
+
 ## Usage
 To run the bot first check `config.py` to see what sensitive information needs to
 be set.
@@ -51,7 +54,7 @@ import example
 class ModuleName:
     def __init__(self, client):
         self.commands = {
-            "command": self.command_function,
+            "hello": self.hello,
         }
         self.name = ["Module name"]
         self.category = ["Module Category"]
@@ -63,8 +66,8 @@ class ModuleName:
             return self.commands[message.content.split(" ")[0][1:]](message)
 
     @staticmethod
-    def command_function(msg):
-        return "Hello World."
+    def hello(msg):
+        return f"Hello {msg.author}."
 
 registry.register(ModuleName)
 ```
@@ -87,6 +90,5 @@ also expect some changes to this.
   - Add load/reload/unload functionality
   - Add module context isolation
 - Modules
-  - Browser for client side attacks
   - CTF scoreboard
   - Top 5 role
