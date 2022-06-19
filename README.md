@@ -25,9 +25,6 @@ Once this is all set, simply run `main.py`
 python3 main.py
 ```
 
-*Note, for security reasons the environment variables will be removed at runtime.
-This means they need to be set everytime.*
-
 ## Development
 If you would like to extend StudBots functionality, feel free to create a pull
 request. In the message please include a brief description of the functionality you

@@ -48,14 +48,19 @@ try:
                             r":%_\+.~#?&//=]*)", url):
                 return "Invalid URL"
 
-            if msg.author in self.users.keys() and time.time - self.users[msg.author] < 5:
+            if msg.author in self.users.keys() and time.time() - self.users[msg.author] < 5:
                 return "I can only visit one link every 5 seconds."
             self.users[msg.author] = time.time()
 
-            self.setup_browser()
-            self.browser.get(url)
+            try:
+                self.setup_browser()
+                self.browser.get(url)
+            except Exception:
+                return "Unable to connect."
 
-            return "Visiting link..."
+            time.sleep(10)   # Give the JS a second to execute
+
+            return "Link visited"
 
         def setup_browser(self):
             opts = Options()
@@ -65,11 +70,11 @@ try:
             self.browser.set_page_load_timeout(10)
 
             # Initialize the individual challenges
-            for i in self.challenges.keys:
+            for i in self.challenges.keys():
                 self.challenges[i]()
 
         def corn(self):
-            self.browser.get("http://146.190.16.124:/login")
+            self.browser.get("http://146.190.16.124:5100/login")
             username = self.browser.find_element_by_id("username")
             password = self.browser.find_element_by_id("password")
             username.send_keys("admin")
@@ -78,6 +83,7 @@ try:
 
         def exss(self):
             self.browser.get("http://146.190.16.124:5080/")
+            self.browser.find_element_by_id("clear-cookie").click()
             cookie = self.browser.find_element_by_id("new-cookie")
             cookie.send_keys(ctf.exss["flag"])
             self.browser.find_element_by_id("add-cookie").click()

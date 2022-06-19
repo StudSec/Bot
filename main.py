@@ -66,27 +66,29 @@ async def on_message(message):
     if message.content.startswith(config["bot"]["prefix"]):
         message.content = message.content.lower()
         try:
-            response = await commands[message.content[1:].split(" ")[0]].process_message(message)
-            if response:
-                # Note: it is possible to break this by having a word over 100 characters, might need to deal with that.
-                if len(response) > 2000:    # Discord message limit is at 2k chars.
-                    response = response.split(' ')
-                    ret = ""
-                    for r in response:
-                        if len(ret) < 1900:
-                            ret += r + " "
-                        else:
-                            if ret.startswith("```"):
-                                ret += "```"
-                                await message.channel.send(ret)
-                                ret = ret.split("\n")[0] + "\n"
+            async with message.channel.typing():
+                response = await commands[message.content[1:].split(" ")[0]].process_message(message)
+                if response:
+                    # Note: it is possible to break this by having a word over 100 characters,
+                    # might need to deal with that.
+                    if len(response) > 2000:    # Discord message limit is at 2k chars.
+                        response = response.split(' ')
+                        ret = ""
+                        for r in response:
+                            if len(ret) < 1900:
                                 ret += r + " "
                             else:
-                                await message.channel.send(ret)
-                                ret = r + " "
-                    await message.channel.send(ret)
-                else:
-                    await message.channel.send(response)
+                                if ret.startswith("```"):
+                                    ret += "```"
+                                    await message.channel.send(ret)
+                                    ret = ret.split("\n")[0] + "\n"
+                                    ret += r + " "
+                                else:
+                                    await message.channel.send(ret)
+                                    ret = r + " "
+                        await message.channel.send(ret)
+                    else:
+                        await message.channel.send(response)
         except KeyError:
             pass
         except:
