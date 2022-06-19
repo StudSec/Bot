@@ -68,7 +68,7 @@ try:
             assert opts.headless
             self.browser = webdriver.Firefox(options=opts)
             self.browser.set_page_load_timeout(10)
-            self.brower.delete_all_cookies()    # Probably redundant.
+            self.browser.delete_all_cookies()    # Probably redundant.
 
             # Initialize the individual challenges
             for i in self.challenges.keys():
@@ -83,10 +83,7 @@ try:
             self.browser.find_element_by_name("login").click()
 
         def exss(self):
-            self.browser.get("http://146.190.16.124:5080/")
-            cookie = self.browser.find_element_by_id("add-cookie")
-            cookie.send_keys(ctf.exss["flag"])
-            self.browser.find_element_by_id("add-cookie").click()
+            self.browser.get("http://146.190.16.124:5080/#" + ctf.exss["flag"])
 
 
     registry.register(Browser)
