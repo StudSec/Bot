@@ -48,8 +48,8 @@ try:
                             r":%_\+.~#?&//=]*)", url):
                 return "Invalid URL"
 
-            if msg.author in self.users.keys() and time.time() - self.users[msg.author] < 5:
-                return "I can only visit one link every 5 seconds."
+            if msg.author in self.users.keys() and time.time() - self.users[msg.author] < 60:
+                return "I can only visit one link every minute."
             self.users[msg.author] = time.time()
 
             try:
