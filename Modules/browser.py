@@ -84,7 +84,7 @@ try:
 
         def exss(self):
             self.browser.get("http://146.190.16.124:5080/")
-            cookie = self.browser.find_element_by_id("new-cookie")
+            cookie = self.browser.find_element_by_id("add-cookie")
             cookie.send_keys(ctf.exss["flag"])
             self.browser.find_element_by_id("add-cookie").click()
 
