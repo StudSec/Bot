@@ -45,9 +45,9 @@ class CTFD:
             if msg == i.content:
                 return
         for i in latest_messages:
-            i.delete()
+            await i.delete()
 
-        self.adjust_roles(scoreboard)
+        await self.adjust_roles(scoreboard)
 
         channel = self.client.get_channel(988434368655687760)
         await channel.send(msg)
@@ -58,25 +58,28 @@ class CTFD:
 
     @staticmethod
     def get_discord_id(id):
-        return json.loads(requests.get(f"https://ctf.studsec.nl/api/v1/discord/ctf2disc/{id}").text)["data"]
+        return int(json.loads(requests.get(f"https://ctf.studsec.nl/api/v1/discord/ctf2disc/{id}").text)["data"]["id"])
 
-    # TODO: gives 0x01, 0x05, 0x0A roles to top 10.
-    def adjust_roles(self, scoreboard):
-        self.client.get_channel()
+    async def adjust_roles(self, scoreboard):
         roles = {
-            "0x0A": get(self.client.get_channel(988434368655687760).server.roles, id=988439047296917526),
-            "0x05": get(self.client.get_channel(988434368655687760).server.roles, id=988439003646787664),
-            "0x01": get(self.client.get_channel(988434368655687760).server.roles, id=988438939394248784)
+            "0x0A": get(self.client.get_channel(988434368655687760).guild.roles, id=988439047296917526),
+            "0x05": get(self.client.get_channel(988434368655687760).guild.roles, id=988439003646787664),
+            "0x01": get(self.client.get_channel(988434368655687760).guild.roles, id=988438939394248784)
         }
         for user in scoreboard:
-            acc = self.client.get_user(self.get_discord_id(user["account_id"]))
-            acc.remove_roles(roles.values())
+            acc = await self.client.get_channel(988434368655687760).guild.fetch_member(
+                self.get_discord_id(user["account_id"]))
+            if not acc:
+                continue
+            await acc.remove_roles(*list(roles.values()))
             if user["pos"] == 1:
-                acc.add_roles(roles["0x01"])
+                await acc.add_roles(roles["0x01"])
             elif 1 < user["pos"] < 6:
-                acc.add_roles(roles["0x05"])
+                await acc.add_roles(roles["0x05"])
             elif 5 < user["pos"] < 11:
-                acc.add_roles(roles["0x0A"])
+                await acc.add_roles(roles["0x0A"])
 
 
 registry.register(CTFD)
+
+
