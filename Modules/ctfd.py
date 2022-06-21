@@ -67,8 +67,11 @@ class CTFD:
             "0x01": get(self.client.get_channel(988434368655687760).guild.roles, id=988438939394248784)
         }
         for user in scoreboard:
-            acc = await self.client.get_channel(988434368655687760).guild.fetch_member(
-                self.get_discord_id(user["account_id"]))
+            try:
+                acc = await self.client.get_channel(988434368655687760).guild.fetch_member(
+                    self.get_discord_id(user["account_id"]))
+            except:
+                continue
             if not acc:
                 continue
             await acc.remove_roles(*list(roles.values()))
