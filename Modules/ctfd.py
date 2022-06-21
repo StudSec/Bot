@@ -6,6 +6,7 @@ from . import registry
 
 # External imports
 from discord.ext import tasks
+from discord.utils import get
 import requests
 import asyncio
 
@@ -26,23 +27,27 @@ class CTFD:
     async def process_message(self, message):
         pass
 
-    @tasks.loop
+    @tasks.loop()
     async def update_scoreboard(self):
-        await asyncio.sleep(60)
+        await asyncio.sleep(6)
         scoreboard = self.get_scoreboard()
-        self.adjust_roles(scoreboard)
+
         msg = "```\n"
         for user in scoreboard:
             if user['pos'] > 25:
                 break
-            msg += f"{user['pos']} {user['name']}" + " "*(20 - len(user['name'])) + f"{user['score']}\n"
+            msg += f"{user['pos']} {user['name']}" + " "*(40 - len(user['name'])) + f"{user['score']}\n"
         msg += "```"
 
-        latest_messages = (await self.get_channel(988434368655687760).history(limit=5).flatten())
+        latest_messages = (await self.client.get_channel(988434368655687760).history(limit=5).flatten())
 
         for i in latest_messages:
-            if msg == i:
+            if msg == i.content:
                 return
+        for i in latest_messages:
+            i.delete()
+
+        self.adjust_roles(scoreboard)
 
         channel = self.client.get_channel(988434368655687760)
         await channel.send(msg)
@@ -51,9 +56,27 @@ class CTFD:
     def get_scoreboard():
         return json.loads(requests.get("https://ctf.studsec.nl/api/v1/scoreboard").text)["data"]
 
+    @staticmethod
+    def get_discord_id(id):
+        return json.loads(requests.get(f"https://ctf.studsec.nl/api/v1/discord/ctf2disc/{id}").text)["data"]
+
     # TODO: gives 0x01, 0x05, 0x0A roles to top 10.
     def adjust_roles(self, scoreboard):
-        pass
+        self.client.get_channel()
+        roles = {
+            "0x0A": get(self.client.get_channel(988434368655687760).server.roles, id=988439047296917526),
+            "0x05": get(self.client.get_channel(988434368655687760).server.roles, id=988439003646787664),
+            "0x01": get(self.client.get_channel(988434368655687760).server.roles, id=988438939394248784)
+        }
+        for user in scoreboard:
+            acc = self.client.get_user(self.get_discord_id(user["account_id"]))
+            acc.remove_roles(roles.values())
+            if user["pos"] == 1:
+                acc.add_roles(roles["0x01"])
+            elif 1 < user["pos"] < 6:
+                acc.add_roles(roles["0x05"])
+            elif 5 < user["pos"] < 11:
+                acc.add_roles(roles["0x0A"])
 
 
 registry.register(CTFD)
