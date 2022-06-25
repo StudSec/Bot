@@ -87,7 +87,7 @@ try:
             self.browser.get("about:newtab")
 
         def corn(self):
-            self.browser.get("http://146.190.16.124:5100/login")
+            self.browser.get("http://challs.studsec.nl:5100/login")
             username = self.browser.find_element_by_id("username")
             password = self.browser.find_element_by_id("password")
             username.send_keys("admin")
@@ -95,7 +95,7 @@ try:
             self.browser.find_element_by_name("login").click()
 
         def exss(self):
-            self.browser.get("http://146.190.16.124:5080/?" + base64.b64encode(ctf.exss["flag"].encode()).decode('ascii'))
+            self.browser.get("http://challs.studsec.nl:5080/?" + base64.b64encode(ctf.exss["flag"].encode()).decode('ascii'))
 
 
     registry.register(Browser)
