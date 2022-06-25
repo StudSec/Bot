@@ -64,7 +64,6 @@ async def on_message(message):
         return
 
     if message.content.startswith(config["bot"]["prefix"]):
-        message.content = message.content.lower()
         try:
             async with message.channel.typing():
                 response = await commands[message.content[1:].split(" ")[0]].process_message(message)

@@ -95,7 +95,7 @@ try:
             self.browser.find_element_by_name("login").click()
 
         def exss(self):
-            self.browser.get("http://146.190.16.124:5080/?" + base64.b64encode(ctf.exss["flag"]))
+            self.browser.get("http://146.190.16.124:5080/?" + base64.b64encode(ctf.exss["flag"].encode()).decode('ascii'))
 
 
     registry.register(Browser)
