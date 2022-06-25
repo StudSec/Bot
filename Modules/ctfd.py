@@ -36,7 +36,8 @@ class CTFD:
         for user in scoreboard:
             if user['pos'] > 25:
                 break
-            msg += f"{user['pos']} {user['name']}" + " "*(40 - len(user['name'])) + f"{user['score']}\n"
+            msg += f"{user['pos']} {user['name']}" + " "*(40 - len(user['name']) - len(str(user['pos'])) -
+                                                          len(str(user['score']))) + f"{user['score']}\n"
         msg += "```"
 
         latest_messages = (await self.client.get_channel(988434368655687760).history(limit=5).flatten())
@@ -44,10 +45,11 @@ class CTFD:
         for i in latest_messages:
             if msg == i.content:
                 return
-        for i in latest_messages:
-            await i.delete()
 
         await self.adjust_roles(scoreboard)
+
+        for i in latest_messages:
+            await i.delete()
 
         channel = self.client.get_channel(988434368655687760)
         await channel.send(msg)

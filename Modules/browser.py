@@ -11,8 +11,10 @@ import discord
 
 
 # Builtins
+import base64
 import time
 import re
+import os
 
 try:
     from . import ctf
@@ -32,15 +34,16 @@ try:
                 "exss": self.exss
             }
             self.users = {}
+            self.setup_browser()
 
         async def process_message(self, message):
             if not isinstance(message.channel, discord.channel.DMChannel):  # Module only works in DMs
                 return
             if message.content.split(" ")[0][1:] in self.commands.keys():
-                return self.commands[message.content.split(" ")[0][1:]](message)
+                return await self.commands[message.content.split(" ")[0][1:]](message)
 
         # This function tests the basic message sending functionality.
-        def visit(self, msg):
+        async def visit(self, msg):
             if len(msg.content.split(" ")) < 2:
                 return "Usage: !visit <url>"
             url = msg.content.split(" ")[1]
@@ -53,14 +56,20 @@ try:
             self.users[msg.author] = time.time()
 
             try:
-                self.setup_browser()
                 self.browser.get(url)
             except Exception:
                 return "Unable to connect."
 
+            await msg.channel.send("Link visited.")
+
             time.sleep(10)   # Give the JS a second to execute
 
-            return "Link visited"
+            os.system("killall firefox")
+
+            # Reset browser for future use.
+            self.setup_browser()
+
+            return
 
         def setup_browser(self):
             opts = Options()
@@ -74,6 +83,9 @@ try:
             for i in self.challenges.keys():
                 self.challenges[i]()
 
+            # Prevent leakage from the setup.
+            self.browser.get("about:newtab")
+
         def corn(self):
             self.browser.get("http://146.190.16.124:5100/login")
             username = self.browser.find_element_by_id("username")
@@ -83,7 +95,7 @@ try:
             self.browser.find_element_by_name("login").click()
 
         def exss(self):
-            self.browser.get("http://146.190.16.124:5080/#" + ctf.exss["flag"])
+            self.browser.get("http://146.190.16.124:5080/?" + base64.b64encode(ctf.exss["flag"]))
 
 
     registry.register(Browser)
