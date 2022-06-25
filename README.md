@@ -86,6 +86,3 @@ also expect some changes to this.
 - Bot
   - Add load/reload/unload functionality
   - Add module context isolation
-- Modules
-  - CTF scoreboard
-  - Top 5 role
