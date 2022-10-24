@@ -55,20 +55,22 @@ try:
                 return "I can only visit one link every minute."
             self.users[msg.author] = time.time()
 
+            status_msg = await msg.channel.send("Setting up")
+
+            self.setup_browser()
+            await status_msg.edit(content="Visiting link..")
+
             try:
                 self.browser.get(url)
             except Exception:
-                return "Unable to connect."
+                await status_msg.edit(content="Unable to connect.")
+                return
 
-            await msg.channel.send("Link visited.")
+            await status_msg.edit(content="Link visited.")
 
             time.sleep(10)   # Give the JS a second to execute
 
             os.system("killall firefox")
-
-            # Reset browser for future use.
-            self.setup_browser()
-
             return
 
         def setup_browser(self):
