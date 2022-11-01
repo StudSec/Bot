@@ -56,7 +56,7 @@ try:
                 return "I can only visit one link every minute."
             self.users[msg.author] = time.time()
 
-            status_msg = await msg.channel.send("Setting up")
+            status_msg = await msg.channel.send("Setting up..")
 
             self.setup_browser()
             await status_msg.edit(content="Visiting link..")
