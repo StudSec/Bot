@@ -67,9 +67,9 @@ try:
                 await status_msg.edit(content="Unable to connect.")
                 return
 
-            await status_msg.edit(content="Link visited.")
-
             time.sleep(10)   # Give the JS a second to execute
+
+            await status_msg.edit(content="Link visited.")
 
             os.system("killall firefox")
             return
@@ -84,7 +84,10 @@ try:
 
             # Initialize the individual challenges
             for i in self.challenges.keys():
-                self.challenges[i]()
+                try:
+                    self.challenges[i]()
+                except Exception as e:
+                    print(e)
 
             # Prevent leakage from the setup.
             self.browser.get("about:newtab")
