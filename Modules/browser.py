@@ -71,7 +71,7 @@ try:
 
             await status_msg.edit(content="Link visited.")
 
-            os.system("killall firefox")
+            self.browser.quit()
             return
 
         def setup_browser(self):
