@@ -31,7 +31,8 @@ try:
             self.browser = None
             self.challenges = {
                 "corn": self.corn,
-                "exss": self.exss
+                "exss": self.exss,
+                "mlb": self.my_little_browser
             }
             self.users = {}
             self.setup_browser()
@@ -98,6 +99,9 @@ try:
 
         def exss(self):
             self.browser.get("http://challs.studsec.nl:5080/?" + base64.b64encode(ctf.exss["flag"].encode()).decode('ascii'))
+
+        def my_little_browser(self):
+            self.browser.get("http://challs.studsec.nl:5480/?page=" + base64.b64encode(ctf.mlb["flag"].encode()).decode('ascii'))
 
 
     registry.register(Browser)

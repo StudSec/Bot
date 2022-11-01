@@ -29,30 +29,33 @@ class CTFD:
 
     @tasks.loop()
     async def update_scoreboard(self):
-        await asyncio.sleep(6)
-        scoreboard = self.get_scoreboard()
+        try:
+            await asyncio.sleep(6)
+            scoreboard = self.get_scoreboard()
 
-        msg = "```\n"
-        for user in scoreboard:
-            if user['pos'] > 25:
-                break
-            msg += f"{user['pos']} {user['name']}" + " "*(40 - len(user['name']) - len(str(user['pos'])) -
-                                                          len(str(user['score']))) + f"{user['score']}\n"
-        msg += "```"
+            msg = "```\n"
+            for user in scoreboard:
+                if user['pos'] > 25:
+                    break
+                msg += f"{user['pos']} {user['name']}" + " "*(40 - len(user['name']) - len(str(user['pos'])) -
+                                                              len(str(user['score']))) + f"{user['score']}\n"
+            msg += "```"
 
-        latest_messages = (await self.client.get_channel(988434368655687760).history(limit=5).flatten())
+            latest_messages = (await self.client.get_channel(988434368655687760).history(limit=5).flatten())
 
-        for i in latest_messages:
-            if msg == i.content:
-                return
+            for i in latest_messages:
+                if msg == i.content:
+                    return
 
-        await self.adjust_roles(scoreboard)
+            await self.adjust_roles(scoreboard)
 
-        for i in latest_messages:
-            await i.delete()
+            for i in latest_messages:
+                await i.delete()
 
-        channel = self.client.get_channel(988434368655687760)
-        await channel.send(msg)
+            channel = self.client.get_channel(988434368655687760)
+            await channel.send(msg)
+        except Exception as e:
+            print(e)
 
     @staticmethod
     def get_scoreboard():
