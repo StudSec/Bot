@@ -78,7 +78,12 @@ try:
             opts = Options()
             opts.set_headless()
             assert opts.headless
-            self.browser = webdriver.Firefox(options=opts)
+
+            # Disable firefox total cookie protection
+            profile = webdriver.FirefoxProfile()
+            profile.DEFAULT_PREFERENCES['frozen']["network.cookie.cookieBehavior"] = 4
+            self.browser = webdriver.Firefox(options=opts, firefox_profile=profile)
+
             self.browser.set_page_load_timeout(10)
             self.browser.delete_all_cookies()    # Probably redundant.
 
