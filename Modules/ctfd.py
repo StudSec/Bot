@@ -74,7 +74,8 @@ class CTFD:
         for user in scoreboard:
             try:
                 acc = await self.client.get_channel(988434368655687760).guild.fetch_member(
-                    self.get_discord_id(user["account_id"]))
+                    self.get_discord_id(user["account_id"])
+                )
             except:
                 continue
             if not acc:

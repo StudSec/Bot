@@ -57,6 +57,12 @@ async def on_ready():
         print(colored("Restarted", "blue"))
         print('-'*20)
 
+    # Temporary, add bell to rules channel
+    # TODO: rewrite this cleanly (so it can be used in modules)
+    channel = client.get_channel(1015959348574425129)
+    rules_msg = await channel.fetch_message(1015968325953667074)
+    await rules_msg.add_reaction("🔔")
+
 
 @client.event
 async def on_message(message):
@@ -107,5 +113,29 @@ async def on_message(message):
                 await message.channel.send(ret)
             else:
                 await message.channel.send(response)
+
+
+@client.event
+async def on_raw_reaction_add(payload):
+    if payload.channel_id != 1015959348574425129:
+        return
+    if "🔔" == payload.emoji.name:
+        user = payload.member
+        if user:
+            role = discord.utils.get(user.guild.roles, name="Active_Member")
+            await user.add_roles(role)
+
+
+@client.event
+async def on_raw_reaction_remove(payload):
+    if payload.channel_id != 1015959348574425129:
+        return
+    print(payload.emoji)
+    if "🔔" == payload.emoji.name:
+        user = await client.get_channel(1015959348574425129).guild.fetch_member(payload.user_id)
+        if user:
+            role = discord.utils.get(user.guild.roles, name="Active_Member")
+            await user.remove_roles(role)
+
 
 client.run(config["bot"]["token"])
