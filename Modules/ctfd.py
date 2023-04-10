@@ -41,7 +41,7 @@ class CTFD:
                                                               len(str(user['score']))) + f"{user['score']}\n"
             msg += "```"
 
-            latest_messages = (await self.client.get_channel(988434368655687760).history(limit=5).flatten())
+            latest_messages = (await self.client.get_channel(988434368655687760).history(limit=5))
 
             for i in latest_messages:
                 if msg == i.content:
