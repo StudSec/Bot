@@ -1,5 +1,5 @@
 """
-Module description
+Queries the studsec google calendar to announce scheduled meetups.
 """
 # Custom imports
 from . import registry
