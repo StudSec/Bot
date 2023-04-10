@@ -3,4 +3,5 @@ __all__ = [
     "test",
     "browser",
     "ctfd",
+    "calender"
 ]
