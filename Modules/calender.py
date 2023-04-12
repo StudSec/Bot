@@ -72,6 +72,10 @@ class HacknChill:
             if event["DTSTART"].dt - timedelta(hours=3) < datetime.now(event["DTSTART"].dt.tzinfo):
                 return
 
+            # Check if event is farther away than 24 hours
+            if event["DTSTART"].dt - timedelta(hours=24) > datetime.now(event["DTSTART"].dt.tzinfo):
+                return
+
             # If not make event
             event_link = await self.client.get_guild(server_id).create_scheduled_event(name="Hack&Chill",
                                                                                        start_time=event["DTSTART"].dt,
