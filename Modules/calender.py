@@ -61,10 +61,10 @@ class HacknChill:
                 if scheduled_event.start_time == event["DTSTART"].dt:
                     if scheduled_event.start_time - timedelta(hours=2) < datetime.now(
                             scheduled_event.start_time.tzinfo) < scheduled_event.start_time \
-                            and scheduled_event.user_count < 3:
+                            and scheduled_event.user_count < 5:
                         await scheduled_event.cancel(reason="Not enough members.")
                         await self.client.get_channel(announcement_channel).send("This weeks Hack&Chill has been "
-                                                                                 "cancelled, less than 3 people could "
+                                                                                 "cancelled, less than 5 people could "
                                                                                  "make it.")
                     return
 
