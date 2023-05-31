@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 
 
 url = "https://calendar.google.com/calendar/ical/c_1e4d18d298e5a27f2d7fb0cb5ca4f3791ae3db284a80996ee5346894d9f210b4%40group.calendar.google.com/public/basic.ics"
-announcment_message = """<@&1080528650140647454> we have another hack & chill planned tomorrow! The plan is to meetup, socialize and hack together. If your interested in coming, join the discord event!
+announcment_message = """<@&1080528650140647454> we have another hack & chill planned this Thursday! The plan is to meetup, socialize and hack together. If your interested in coming, join the discord event!
 
 The meetup is scheduled for 1900 in NU. If you can't/won't make it, react with ❌
 
@@ -46,7 +46,7 @@ class HacknChill:
     async def update_events(self):
         await asyncio.sleep(60)
         start = datetime.now()
-        end = start + timedelta(days=2)
+        end = start + timedelta(days=3)
         ical_string = urllib.request.urlopen(url).read()
         calendar = icalendar.Calendar.from_ical(ical_string)
         events = recurring_ical_events.of(calendar).between(
@@ -65,8 +65,8 @@ class HacknChill:
             if event["DTSTART"].dt - timedelta(hours=3) < datetime.now(event["DTSTART"].dt.tzinfo):
                 return
 
-            # Check if event is farther away than 24 hours
-            if event["DTSTART"].dt - timedelta(hours=24) > datetime.now(event["DTSTART"].dt.tzinfo):
+            # Check if event is farther away than 48 hours
+            if event["DTSTART"].dt - timedelta(hours=48) > datetime.now(event["DTSTART"].dt.tzinfo):
                 return
 
             # If not make event
