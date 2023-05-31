@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
 url = "https://calendar.google.com/calendar/ical/c_1e4d18d298e5a27f2d7fb0cb5ca4f3791ae3db284a80996ee5346894d9f210b4%40group.calendar.google.com/public/basic.ics"
 announcment_message = """<@&1080528650140647454> we have another hack & chill planned tomorrow! The plan is to meetup, socialize and hack together. If your interested in coming, join the discord event!
 
-If more than 3 people are interested we'll meetup at 1900 in NU.
+The meetup is scheduled for 1900 in NU. If you can't/won't make it, react with ❌
 
 {url}
 """
@@ -59,13 +59,6 @@ class HacknChill:
             # Check if event exists
             for scheduled_event in await self.client.get_guild(server_id).fetch_scheduled_events():
                 if scheduled_event.start_time == event["DTSTART"].dt:
-                    if scheduled_event.start_time - timedelta(hours=2) < datetime.now(
-                            scheduled_event.start_time.tzinfo) < scheduled_event.start_time \
-                            and scheduled_event.user_count < 5:
-                        await scheduled_event.cancel(reason="Not enough members.")
-                        await self.client.get_channel(announcement_channel).send("This weeks Hack&Chill has been "
-                                                                                 "cancelled, less than 5 people could "
-                                                                                 "make it.")
                     return
 
             # Check if event is closer than 3 hours
@@ -84,7 +77,8 @@ class HacknChill:
                                                                                        description="")
 
             # And send message
-            await self.client.get_channel(announcement_channel).send(announcment_message.format(url=event_link.url))
+            await self.client.get_channel(announcement_channel).send(announcment_message.format(url=event_link.url)
+                                                                     ).add_reaction("❌")
 
 
 registry.register(HacknChill)
