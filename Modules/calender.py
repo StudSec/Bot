@@ -21,7 +21,6 @@ The meetup is scheduled for 1900 in NU. If you can't/won't make it, react with â
 
 {url}
 """
-cancel_message = "This weeks Hack&Chill has been cancelled, less than 3 people could make it :/"
 server_id = 880765355935535165
 announcement_channel = 881230276049633360
 # Debug channel info
