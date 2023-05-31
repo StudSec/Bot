@@ -17,7 +17,9 @@ from datetime import datetime, timedelta
 url = "https://calendar.google.com/calendar/ical/c_1e4d18d298e5a27f2d7fb0cb5ca4f3791ae3db284a80996ee5346894d9f210b4%40group.calendar.google.com/public/basic.ics"
 announcment_message = """<@&1080528650140647454> we have another hack & chill planned this Thursday! The plan is to meetup, socialize and hack together. If your interested in coming, join the discord event!
 
-The meetup is scheduled for 1900 in NU. If you can't/won't make it, react with ❌
+The meetup is scheduled for 1900 in NU. 
+
+If you can't/won't make it, react with ❌
 
 {url}
 """
@@ -76,8 +78,8 @@ class HacknChill:
                                                                                        description="")
 
             # And send message
-            await self.client.get_channel(announcement_channel).send(announcment_message.format(url=event_link.url)
-                                                                     ).add_reaction("❌")
+            message = await self.client.get_channel(announcement_channel).send(announcment_message.format(url=event_link.url))
+            await message.add_reaction("❌")
 
 
 registry.register(HacknChill)
