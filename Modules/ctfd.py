@@ -48,8 +48,6 @@ class CTFD:
             latest_messages = [message async for message in
                                self.client.get_channel(988434368655687760).history(limit=5)]
 
-            await self.adjust_roles(scoreboard)
-
             for i in latest_messages:
                 if msg == i.content:
                     return
@@ -93,7 +91,7 @@ class CTFD:
                 print("error in ctf role updating:")
                 print(traceback.format_exc())
                 continue
-            print("updating roles for", user["username"])
+
             await acc.remove_roles(*list(roles.values()))
             if user["position"] == 1:
                 await acc.add_roles(roles["0x01"])
