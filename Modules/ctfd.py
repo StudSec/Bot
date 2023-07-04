@@ -87,12 +87,13 @@ class CTFD:
                 acc = await self.client.get_channel(988434368655687760).guild.fetch_member(
                     self.get_discord_id(user["user_id"])
                 )
+            except (TypeError, ConnectionRefusedError):
+                continue
             except Exception:
                 print("error in ctf role updating:")
                 print(traceback.format_exc())
                 continue
-            if not acc:
-                continue
+            print("updating roles for", user["username"])
             await acc.remove_roles(*list(roles.values()))
             if user["position"] == 1:
                 await acc.add_roles(roles["0x01"])
