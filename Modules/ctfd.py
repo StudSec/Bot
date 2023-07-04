@@ -12,6 +12,7 @@ import asyncio
 
 # Builtins
 import json
+import traceback
 
 
 class CTFD:
@@ -58,8 +59,9 @@ class CTFD:
 
             channel = self.client.get_channel(988434368655687760)
             await channel.send(msg)
-        except Exception as e:
-            print("error in ctf scoreboard updating:", type(e), e)
+        except Exception:
+            print("error in ctf scoreboard updating:")
+            print(traceback.format_exc())
 
     @staticmethod
     def get_scoreboard():
@@ -67,7 +69,7 @@ class CTFD:
 
     @staticmethod
     def get_discord_id(user_id):
-        return int(json.loads(requests.get(f"https://ctf.studsec.nl/api/discord_id/{user_id}").text)["data"]["id"])
+        return int(json.loads(requests.get(f"https://ctf.studsec.nl/api/discord_id/{user_id}").text)["id"])
 
     async def adjust_roles(self, scoreboard):
         roles = {
