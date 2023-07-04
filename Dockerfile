@@ -18,4 +18,5 @@ ADD main.py .
 ADD config.py .
 COPY Modules ./Modules
 
-ENTRYPOINT python3 main.py
+# Unbuffered to flush stdout
+ENTRYPOINT python3 -u main.py

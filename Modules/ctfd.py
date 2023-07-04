@@ -59,7 +59,7 @@ class CTFD:
             channel = self.client.get_channel(988434368655687760)
             await channel.send(msg)
         except Exception as e:
-            print(e)
+            print("error in ctf scoreboard updating:", type(e), e)
 
     @staticmethod
     def get_scoreboard():
