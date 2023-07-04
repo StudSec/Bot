@@ -59,6 +59,8 @@ class CTFD:
 
             channel = self.client.get_channel(988434368655687760)
             await channel.send(msg)
+        except ConnectionRefusedError:
+            pass
         except Exception:
             print("error in ctf scoreboard updating:")
             print(traceback.format_exc())
@@ -66,6 +68,7 @@ class CTFD:
     @staticmethod
     def get_scoreboard():
         return json.loads(requests.get("https://ctf.studsec.nl/api/scoreboard").text)
+
 
     @staticmethod
     def get_discord_id(user_id):
@@ -80,18 +83,18 @@ class CTFD:
         for user in scoreboard:
             try:
                 acc = await self.client.get_channel(988434368655687760).guild.fetch_member(
-                    self.get_discord_id(user["account_id"])
+                    self.get_discord_id(user["user_id"])
                 )
             except:
                 continue
             if not acc:
                 continue
             await acc.remove_roles(*list(roles.values()))
-            if user["pos"] == 1:
+            if user["position"] == 1:
                 await acc.add_roles(roles["0x01"])
-            elif 1 < user["pos"] < 6:
+            elif 1 < user["position"] < 6:
                 await acc.add_roles(roles["0x05"])
-            elif 5 < user["pos"] < 11:
+            elif 5 < user["position"] < 11:
                 await acc.add_roles(roles["0x0A"])
 
 
