@@ -32,6 +32,9 @@ DISCORD_TOKEN=OTg..
 
 for more information see https://docs.docker.com/compose/environment-variables/set-environment-variables/
 
+The repository also contains an `update.sh` script, which may be used to automatically update and rebuild the bot if
+changes are made.
+
 ## Development
 If you would like to extend StudBots functionality, feel free to create a pull
 request. In the message please include a brief description of the functionality you
