@@ -38,7 +38,7 @@ class CTFD:
             for user in scoreboard:
                 if user['position'] > 25:
                     break
-                username = user['name']
+                username = user['username']
                 username.replace("`", "")
                 msg += f"{user['position']} {username}" + " " * (
                             40 - len(username) - len(str(user['position'])) -
