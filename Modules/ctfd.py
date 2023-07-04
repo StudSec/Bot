@@ -30,7 +30,7 @@ class CTFD:
     @tasks.loop()
     async def update_scoreboard(self):
         try:
-            await asyncio.sleep(6)
+            await asyncio.sleep(15)
             scoreboard = self.get_scoreboard()
 
             msg = "```\n"
@@ -63,7 +63,7 @@ class CTFD:
 
     @staticmethod
     def get_scoreboard():
-        return json.loads(requests.get("https://ctf.studsec.nl/api/scoreboard").text)["data"]
+        return json.loads(requests.get("https://ctf.studsec.nl/api/scoreboard").text)
 
     @staticmethod
     def get_discord_id(user_id):
