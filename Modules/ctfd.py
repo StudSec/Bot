@@ -74,7 +74,7 @@ class CTFD:
 
     @staticmethod
     def get_discord_id(user_id):
-        return int(json.loads(requests.get(f"https://ctf.studsec.nl/api/discord_id/{user_id}").text)["id"])
+        return int(json.loads(requests.get(f"https://ctf.studsec.nl/api/discord_id/{user_id}").text)["discord_id"])
 
     async def adjust_roles(self, scoreboard):
         roles = {
@@ -90,6 +90,7 @@ class CTFD:
             except Exception:
                 print("error in ctf role updating:")
                 print(traceback.format_exc())
+                continue
             if not acc:
                 continue
             await acc.remove_roles(*list(roles.values()))
