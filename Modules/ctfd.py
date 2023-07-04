@@ -35,13 +35,17 @@ class CTFD:
 
             msg = "```\n"
             for user in scoreboard:
-                if user['pos'] > 25:
+                if user['position'] > 25:
                     break
-                msg += f"{user['pos']} {user['name']}" + " "*(40 - len(user['name']) - len(str(user['pos'])) -
-                                                              len(str(user['score']))) + f"{user['score']}\n"
+                username = user['name']
+                username.replace("`", "")
+                msg += f"{user['position']} {username}" + " " * (
+                            40 - len(username) - len(str(user['position'])) -
+                            len(str(user['score']))) + f"{user['score']}\n"
             msg += "```"
 
-            latest_messages = [message async for message in self.client.get_channel(988434368655687760).history(limit=5)]
+            latest_messages = [message async for message in
+                               self.client.get_channel(988434368655687760).history(limit=5)]
 
             for i in latest_messages:
                 if msg == i.content:
@@ -59,11 +63,11 @@ class CTFD:
 
     @staticmethod
     def get_scoreboard():
-        return json.loads(requests.get("https://ctf.studsec.nl/api/v1/scoreboard").text)["data"]
+        return json.loads(requests.get("https://ctf.studsec.nl/api/scoreboard").text)["data"]
 
     @staticmethod
-    def get_discord_id(id):
-        return int(json.loads(requests.get(f"https://ctf.studsec.nl/api/v1/discord/ctf2disc/{id}").text)["data"]["id"])
+    def get_discord_id(user_id):
+        return int(json.loads(requests.get(f"https://ctf.studsec.nl/api/discord_id/{user_id}").text)["data"]["id"])
 
     async def adjust_roles(self, scoreboard):
         roles = {
@@ -90,5 +94,3 @@ class CTFD:
 
 
 registry.register(CTFD)
-
-
