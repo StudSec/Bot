@@ -25,6 +25,13 @@ Once this is all set, simply run `main.py`
 python3 main.py
 ```
 
+If your using docker you will need to create a `.env` file containing the discord token as follows.
+```text
+DISCORD_TOKEN=OTg..
+```
+
+for more information see https://docs.docker.com/compose/environment-variables/set-environment-variables/
+
 ## Development
 If you would like to extend StudBots functionality, feel free to create a pull
 request. In the message please include a brief description of the functionality you

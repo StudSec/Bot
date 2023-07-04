@@ -16,3 +16,4 @@ urllib3==1.26.9
 yarl==1.7.2
 
 icalendar~=5.0.4
+recurring-ical-events==2.0.2
