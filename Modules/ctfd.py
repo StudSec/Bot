@@ -48,6 +48,8 @@ class CTFD:
             latest_messages = [message async for message in
                                self.client.get_channel(988434368655687760).history(limit=5)]
 
+            await self.adjust_roles(scoreboard)
+
             for i in latest_messages:
                 if msg == i.content:
                     return
@@ -85,8 +87,9 @@ class CTFD:
                 acc = await self.client.get_channel(988434368655687760).guild.fetch_member(
                     self.get_discord_id(user["user_id"])
                 )
-            except:
-                continue
+            except Exception:
+                print("error in ctf role updating:")
+                print(traceback.format_exc())
             if not acc:
                 continue
             await acc.remove_roles(*list(roles.values()))
