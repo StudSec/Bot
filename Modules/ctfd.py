@@ -80,7 +80,7 @@ class CTFD:
             "0x05": get(self.client.get_channel(988434368655687760).guild.roles, id=988439003646787664),
             "0x01": get(self.client.get_channel(988434368655687760).guild.roles, id=988438939394248784)
         }
-        for user in scoreboard:
+        for user in scoreboard[:10]:
             try:
                 acc = await self.client.get_channel(988434368655687760).guild.fetch_member(
                     self.get_discord_id(user["user_id"])
