@@ -45,12 +45,16 @@ try:
 
         # This function tests the basic message sending functionality.
         async def visit(self, msg):
-            if len(msg.content.split(" ")) < 2:
-                return "Usage: !visit <url>"
-            url = msg.content.split(" ")[1]
+            if len(msg.content.split(" ")) < 3:
+                return "Usage: !visit <corn/exss/mlb> <url>"
+            challenge = msg.content.split(" ")[1]
+            url = msg.content.split(" ")[2]
             if not re.match(r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@"
                             r":%_\+.~#?&//=]*)", url):
                 return "Invalid URL"
+
+            if challenge not in self.challenges.keys():
+                return "Invalid challenge, options are corn/exss/mlb"
 
             if msg.author in self.users.keys() and time.time() - self.users[msg.author] < 60:
                 return "I can only visit one link every minute."
@@ -58,7 +62,7 @@ try:
 
             status_msg = await msg.channel.send("Setting up..")
 
-            self.setup_browser()
+            self.setup_browser(challenge)
             await status_msg.edit(content="Visiting link..")
 
             try:
@@ -74,7 +78,7 @@ try:
             self.browser.quit()
             return
 
-        def setup_browser(self):
+        def setup_browser(self, challenge):
             opts = Options()
             opts.set_headless()
             assert opts.headless
@@ -87,12 +91,8 @@ try:
             self.browser.set_page_load_timeout(10)
             self.browser.delete_all_cookies()    # Probably redundant.
 
-            # Initialize the individual challenges
-            for i in self.challenges.keys():
-                try:
-                    self.challenges[i]()
-                except Exception as e:
-                    print(e)
+            # Initialize the challenge
+            self.challenges[challenge]()
 
             # Prevent leakage from the setup.
             self.browser.get("about:newtab")
