@@ -35,7 +35,6 @@ try:
                 "mlb": self.my_little_browser
             }
             self.users = {}
-            self.setup_browser()
 
         async def process_message(self, message):
             if not isinstance(message.channel, discord.channel.DMChannel):  # Module only works in DMs
