@@ -17,17 +17,12 @@ from datetime import datetime, timedelta
 url = "https://calendar.google.com/calendar/ical/c_1e4d18d298e5a27f2d7fb0cb5ca4f3791ae3db284a80996ee5346894d9f210b4%40group.calendar.google.com/public/basic.ics"
 announcment_message = """<@&1080528650140647454> we have another hack & chill planned this Thursday! The plan is to meetup, socialize and hack together. If your interested in coming, join the discord event!
 
-The meetup is scheduled for 1900 in NU. 
-
 If you can't/won't make it, react with ❌
 
 {url}
 """
 server_id = 880765355935535165
 announcement_channel = 881230276049633360
-# Debug channel info
-# server_id = 981278603528523866
-# announcement_channel = 981280566894805042
 
 
 class HacknChill:
