@@ -9,6 +9,7 @@ import logging
 
 import discord
 from discord.ext import commands
+from discord.ext.commands import Context
 from dotenv import load_dotenv
 from termcolor import colored
 
@@ -25,14 +26,18 @@ class StudSecBot(commands.Bot):
         self.prefix = "!"
         self.path = f"{os.path.realpath(os.path.dirname(__file__))}"
 
-        super().__init__(intents=discord.Intents.default(), command_prefix=self.prefix)
+        intents = discord.Intents.default()
+        intents.members = True
+        intents.message_content = True
+
+        super().__init__(intents=intents, command_prefix=self.prefix)
 
     async def load_cogs(self) -> None:
         """Loads in all the cogs defined in the `bot/cogs` directory"""
         for file in os.listdir(f"{self.path}/cogs"):
             if file.endswith(".py"):
                 logging.info("Loading cog: %s", colored(file, "light_blue"))
-                await self.load_extension(f"cogs.{file[:-3]}")
+                await self.load_extension(f"bot.cogs.{file[:-3]}")
 
     async def setup_hook(self) -> None:
         """Runs when the bot starts for the first time. entrypoint to call all the other setup functions"""

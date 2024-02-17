@@ -2,5 +2,3 @@ version: "3.2"
 services:
   pwncrates:
     build: .
-    environment:
-      - DISCORD_TOKEN=${DISCORD_TOKEN}

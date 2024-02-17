@@ -71,8 +71,8 @@ class YourClassName(commands.Cog, name="yourClassName"):
         return
 
 
-async def setup(bot) -> None:
-    await bot.add_cog(Template(bot))
+async def setup(bot) -> None:  # pylint: disable=missing-function-docstring
+    await bot.add_cog(YourClassName(bot))
 ```
 
 ## TODO
