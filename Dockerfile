@@ -15,8 +15,7 @@ RUN mv geckodriver /usr/local/bin
 # Copy over the bot and install
 RUN mkdir -p app
 WORKDIR /app
-ADD pyproject.toml .
-ADD .env .
+COPY pyproject.toml .env ./
 COPY bot ./bot
 RUN /root/.local/bin/poetry install
 

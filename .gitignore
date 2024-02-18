@@ -14,3 +14,6 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# no flags
+bot/cogs/ctf.py

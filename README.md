@@ -59,7 +59,7 @@ class YourClassName(commands.Cog, name="yourClassName"):
         self.bot = bot
 
     # NOTE: this is for a command, non command cogs won't need this
-    @commands.hybrid_command(
+    @app_commands.command(
         name="yourCommandName",
         description="The description of my command",
     )
@@ -78,4 +78,7 @@ async def setup(bot) -> None:  # pylint: disable=missing-function-docstring
 ## TODO
 Some features that could be added
 - load/reload/unload functionality
-- status message(s)
+- status message(s)?
+- update selenium?
+- update ctf flag loading?
+- better calendar system?
