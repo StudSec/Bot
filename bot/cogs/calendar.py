@@ -70,6 +70,11 @@ class Calendar(commands.Cog, name="calendar"):
 
             await message.add_reaction("❌")
 
+    @update_events.before_loop
+    async def before_loop(self) -> None:
+        """Make sure the bot is ready"""
+        await self.bot.wait_until_ready()
+
 
 async def setup(bot) -> None:  # pylint: disable=missing-function-docstring
     await bot.add_cog(Calendar(bot))

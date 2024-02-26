@@ -76,6 +76,11 @@ class CtfD(commands.Cog, name="ctfd"):
             logging.error("Error in ctfd, %s", traceback.format_exc())
             return
 
+    @update_scoreboard.before_loop
+    async def before_loop(self) -> None:
+        """Make sure the bot is ready"""
+        await self.bot.wait_until_ready()
+
     async def adjust_roles(self, scoreboard: json, channel: discord.channel) -> None:
         """Updates the rank roles, if needed"""
         roles = list(
