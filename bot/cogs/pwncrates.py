@@ -1,7 +1,7 @@
-"""This module provides integration between the CTFD and discord server
+"""This module provides integration between pwncrates and discord
 
 To provide some extra functionaly, this cog provides the roles, scoreboard, and
-dates of the solves integration on the discord for the CTFD site.
+dates of the solves integration on the discord for the pwncrates site.
 """
 
 import json
@@ -15,8 +15,8 @@ from discord.utils import get
 from discord.ext import commands, tasks
 
 
-class CtfD(commands.Cog, name="ctfd"):
-    """The class that provides the CtfD integration"""
+class Pwncrates(commands.Cog, name="pwncrates"):
+    """The class that provides the pwncrates integration"""
 
     def __init__(self, bot) -> None:
         self.bot = bot
@@ -73,7 +73,7 @@ class CtfD(commands.Cog, name="ctfd"):
         except discord.errors.Forbidden:
             logging.error("Failed to set roles; Missing permission role")
         except Exception:  # pylint: disable=broad-exception-caught
-            logging.error("Error in ctfd, %s", traceback.format_exc())
+            logging.error("Error in pwncrates, %s", traceback.format_exc())
             return
 
     @update_scoreboard.before_loop
@@ -105,4 +105,4 @@ class CtfD(commands.Cog, name="ctfd"):
 
 
 async def setup(bot) -> None:  # pylint: disable=missing-function-docstring
-    await bot.add_cog(CtfD(bot))
+    await bot.add_cog(Pwncrates(bot))
