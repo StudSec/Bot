@@ -63,9 +63,10 @@ class Pwncrates(commands.Cog, name="pwncrates"):
 
         try:
             latest_message = await get(scoreboard_channel.history())
-            if new_scoreboard == latest_message:
+            if new_scoreboard == latest_message.content:
                 return
-            await latest_message.delete()
+            if latest_message:
+                await latest_message.delete()
             await scoreboard_channel.send(new_scoreboard)
             await self.adjust_roles(scoreboard, scoreboard_channel)
         except ConnectionRefusedError:
@@ -99,6 +100,9 @@ class Pwncrates(commands.Cog, name="pwncrates"):
                 discord_user = await channel.guild.fetch_member(discord_id)
             except (discord.errors.NotFound, TypeError):
                 continue
+
+            if not discord_user:
+                continue    # User might not be in the discord server
 
             if roles[i] not in discord_user.roles:
                 await discord_user.add_roles(roles[i])
