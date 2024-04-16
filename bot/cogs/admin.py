@@ -39,7 +39,6 @@ class Admin(commands.Cog, name="admin"):
         """
         msg = "Loaded cogs:\n```\n"
         for cog in ctx.bot.cogs:
-            print(dir(ctx.bot.cogs[cog]))
             msg += f"- {cog}\n"
         msg += "```"
 

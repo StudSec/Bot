@@ -21,7 +21,7 @@ class CTFEvents(commands.Cog, name="ctf_events"):
     @tasks.loop(minutes=1)
     async def update_events(self) -> None:  # pylint: disable=too-many-locals
         """Checks the calendar, and adds/updates events if needed"""
-        with urllib.request.urlopen(self.bot.config["events_calendar"]) as u:
+        with urllib.request.urlopen(self.bot.config["ctf_calendar"]) as u:
             ical_string = u.read()
         calendar = icalendar.Calendar.from_ical(ical_string)
 
@@ -63,7 +63,7 @@ class CTFEvents(commands.Cog, name="ctf_events"):
                         datetime.combine(event["DTSTART"].dt, datetime.min.time())
                         ),
                     end_time=timezone.localize(
-                        datetime.combine(event["DTEND"].dt, datetime.min.time())
+                        datetime.combine(event["DTEND"].dt, datetime.max.time())
                         ),
                     location=str(event.get("LOCATION", "")),
                     description=str(event.get("DESCRIPTION", "")),

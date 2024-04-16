@@ -8,6 +8,7 @@ import urllib.request
 from datetime import datetime
 
 import logging
+import traceback
 import icalendar
 import recurring_ical_events
 from discord.ext import commands, tasks
@@ -39,14 +40,12 @@ class Calendar(commands.Cog, name="calendar"):
             return
 
         scheduled_events = await guild.fetch_scheduled_events()
-
         for event in events:
             # NOTE: does not support dates, only events with set start and end times.
             try:
                 # Fill in missing keys
                 description = str(event.get("DESCRIPTION", ""))
                 location = str(event.get("LOCATION", ""))
-
 
                 for scheduled_event in scheduled_events:
                     if scheduled_event.name == event["SUMMARY"]:
@@ -84,8 +83,8 @@ class Calendar(commands.Cog, name="calendar"):
                     )
 
                     await message.add_reaction("❌")
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                logging.error("Error in calendar event %s: %s %s", event['SUMMARY'], Exception, e)
+            except Exception:  # pylint: disable=broad-exception-caught
+                logging.error("Error in calendar event %s:\n%s", event['SUMMARY'], traceback.format_exc())
 
     @update_events.before_loop
     async def before_loop(self) -> None:
