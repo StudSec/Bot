@@ -40,7 +40,11 @@ poetry shell
 ```
 
 on top of this, this project (tries to) adhere to the google python style, and
- uses pylint for its linting and black for its styling.
+ uses pylint for its linting and black for its styling. To do this simply enter
+ a poetry shell and run
+ ```sh
+ pylint bot
+ ```
 
 ## Documentation
 To add a cog, use the following template
@@ -51,6 +55,7 @@ Module description
 """
 
 from discord.ext import commands
+from discord import app_commands
 from discord.ext.commands import Context
 
 

@@ -1,7 +1,7 @@
-"""This module provides integration between the CTFD and discord server
+"""This module provides integration between pwncrates and discord
 
 To provide some extra functionaly, this cog provides the roles, scoreboard, and
-dates of the solves integration on the discord for the CTFD site.
+dates of the solves integration on the discord for the pwncrates site.
 """
 
 import json
@@ -15,8 +15,8 @@ from discord.utils import get
 from discord.ext import commands, tasks
 
 
-class CtfD(commands.Cog, name="ctfd"):
-    """The class that provides the CtfD integration"""
+class Pwncrates(commands.Cog, name="pwncrates"):
+    """The class that provides the pwncrates integration"""
 
     def __init__(self, bot) -> None:
         self.bot = bot
@@ -52,7 +52,7 @@ class CtfD(commands.Cog, name="ctfd"):
         new_scoreboard = "```\n"
         # API already orders users by score, we can take top 25
         for user in scoreboard[:25]:
-            new_scoreboard += f"{user['position']:<2} {user['username'].replace('`', ''):<31} {user['score']:>5}\n"
+            new_scoreboard += f"{user['position']:<2} {user['username'].replace('`', ''):<31} {user['score']:>5}\n"     # pylint: disable=line-too-long
         new_scoreboard += "```"
 
         scoreboard_channel = self.bot.get_channel(
@@ -63,9 +63,10 @@ class CtfD(commands.Cog, name="ctfd"):
 
         try:
             latest_message = await get(scoreboard_channel.history())
-            if new_scoreboard == latest_message:
+            if new_scoreboard == latest_message.content:
                 return
-            await latest_message.delete()
+            if latest_message:
+                await latest_message.delete()
             await scoreboard_channel.send(new_scoreboard)
             await self.adjust_roles(scoreboard, scoreboard_channel)
         except ConnectionRefusedError:
@@ -73,7 +74,7 @@ class CtfD(commands.Cog, name="ctfd"):
         except discord.errors.Forbidden:
             logging.error("Failed to set roles; Missing permission role")
         except Exception:  # pylint: disable=broad-exception-caught
-            logging.error("Error in ctfd, %s", traceback.format_exc())
+            logging.error("Error in pwncrates, %s", traceback.format_exc())
             return
 
     @update_scoreboard.before_loop
@@ -100,9 +101,12 @@ class CtfD(commands.Cog, name="ctfd"):
             except (discord.errors.NotFound, TypeError):
                 continue
 
+            if not discord_user:
+                continue    # User might not be in the discord server
+
             if roles[i] not in discord_user.roles:
                 await discord_user.add_roles(roles[i])
 
 
 async def setup(bot) -> None:  # pylint: disable=missing-function-docstring
-    await bot.add_cog(CtfD(bot))
+    await bot.add_cog(Pwncrates(bot))

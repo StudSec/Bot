@@ -1,6 +1,6 @@
 """This module is the main entrypoint of the bot. 
 
-In this file, the `StudSecBot` is defined, initialized, and extended with the cogs.
+In this file, the `StudBot` is defined, initialized, and extended with the cogs.
 Run this file using `poetry` as described in the `README.md`
 """
 
@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 from termcolor import colored
 
 
-class StudSecBot(commands.Bot):
+class StudBot(commands.Bot):
     """This is the entrypoint when running the bot, with all the initialization and friends"""
 
     def __init__(self) -> None:
@@ -26,7 +26,7 @@ class StudSecBot(commands.Bot):
         - The intents and sets the prefix for `super`;
         """
         self.path = f"{os.path.realpath(os.path.dirname(__file__))}"
-        with open(f"{self.path}/config.json", "r") as file:
+        with open(f"{self.path}/config.json", "r", encoding="utf-8") as file:
             self.config = json.load(file)
 
         intents = discord.Intents.default()
@@ -53,6 +53,9 @@ class StudSecBot(commands.Bot):
         logging.info("Logged in as: %s", colored(self.user.name, "blue"))
         logging.info("User ID is: %s", colored(self.user.id, "blue"))
         logging.info("discord.py version: %s", colored(discord.__version__, "blue"))
+        logging.info("Connected to:")
+        async for server in self.fetch_guilds():
+            logging.info("+ %s", colored(server, "blue"))
         logging.info("-" * 20)
 
         await self.load_cogs()
@@ -90,9 +93,10 @@ def main() -> None:
     logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
 
     load_dotenv()
-    bot = StudSecBot()
+    bot = StudBot()
     bot.tree.on_error = bot.on_tree_error
     bot.run(os.getenv("DISCORD_TOKEN"))
+
 
 
 if __name__ == "__main__":
