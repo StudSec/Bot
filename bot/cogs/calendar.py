@@ -1,16 +1,17 @@
 """"This module sets up events in discord based on the calendar events
 
-To automate the work of making events on discord for the hack&chills, this cog
-checks the StudSec calendar and creates a matching event for a hack&chill listed
-there.
+To automate the work of making events on discord for the hack&chills and other events, this cog
+checks the StudSec calendar and creates a matching event..
 """
 
 import urllib.request
 from datetime import datetime, timedelta
 
 import icalendar
+import logging
 import recurring_ical_events
 from discord.ext import commands, tasks
+from discord import EntityType, PrivacyLevel
 
 
 class Calendar(commands.Cog, name="calendar"):
@@ -23,52 +24,67 @@ class Calendar(commands.Cog, name="calendar"):
     @tasks.loop(minutes=1)
     async def update_events(self) -> None:
         """Checks the calendar, and adds/updates events if needed"""
-        ical_string = urllib.request.urlopen(self.bot.config["calendar"]).read()
+        ical_string = urllib.request.urlopen(self.bot.config["events_calendar"]).read()
         calendar = icalendar.Calendar.from_ical(ical_string)
 
         current = datetime.now()
         events = recurring_ical_events.of(calendar).between(
             (current.year, current.month, current.day),
-            (current.year, current.month, current.day + 3),
+            (current.year, current.month, current.day + 10),
         )
 
         guild = self.bot.get_guild(self.bot.config["server_id"])
         if guild is None:
             return
 
+        scheduled_events = await guild.fetch_scheduled_events()
+
         for event in events:
-            if event["SUMMARY"] != "Meetup":
-                continue
+            # NOTE: does not support dates, only events with set start and end times.
+            try:
+                # Fill in missing keys
+                description = str(event.get("DESCRIPTION", ""))
+                location = str(event.get("LOCATION", ""))
 
-            for scheduled_event in await guild.fetch_scheduled_events():
-                if scheduled_event.start_time == event["DTSTART"].dt:
-                    return
 
-            if event["DTSTART"].dt - timedelta(hours=3) < datetime.now(
-                event["DTSTART"].dt.tzinfo
-            ) or (
-                event["DTSTART"].dt - timedelta(hours=48)
-                > datetime.now(event["DTSTART"].dt.tzinfo)
-            ):
-                return
+                for scheduled_event in scheduled_events:
+                    if scheduled_event.name == event["SUMMARY"]:
+                        # Update info to make sure it matches
+                        await scheduled_event.edit(
+                            name=event["SUMMARY"],
+                            start_time=event["DTSTART"].dt,
+                            end_time=event["DTEND"].dt,
+                            location=location,
+                            description=description,
+                            entity_type=EntityType.external,
+                            privacy_level=PrivacyLevel.guild_only
+                        )
+                        break
+                else:
+                    event_link = await guild.create_scheduled_event(
+                        name=event["SUMMARY"],
+                        start_time=event["DTSTART"].dt,
+                        end_time=event["DTEND"].dt,
+                        location=location,
+                        description=description,
+                        entity_type=EntityType.external,
+                        privacy_level=PrivacyLevel.guild_only
+                    )
 
-            event_link = await guild.create_scheduled_event(
-                name="Hack&Chill",
-                start_time=event["DTSTART"].dt,
-                end_time=event["DTEND"].dt,
-                location="NU, Vrije Universiteit",
-                description="",
-            )
+                    message = await self.bot.get_channel(
+                        self.bot.config["channel"]["announcements"]
+                    ).send(
+                        "\n".join(self.bot.config["calendar_announcement"]["message"]).format(
+                            title=event["SUMMARY"],
+                            date=event["DTSTART"].dt.strftime('%H:%M %d/%m/%Y'),
+                            url=event_link.url,
+                            description=description
+                        )
+                    )
 
-            message = await self.bot.get_channel(
-                self.bot.config["channel"]["announcements"]
-            ).send(
-                "\n".join(self.bot.config["hacknchill"]["message"]).format(
-                    url=event_link.url
-                )
-            )
-
-            await message.add_reaction("❌")
+                    await message.add_reaction("❌")                            
+            except Exception as e:
+                logging.error(f"Error in calendar event {event['SUMMARY']}: {Exception} {e}")
 
     @update_events.before_loop
     async def before_loop(self) -> None:
