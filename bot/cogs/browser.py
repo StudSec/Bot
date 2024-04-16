@@ -14,7 +14,7 @@ from discord import app_commands
 from discord.ext import commands
 from selenium.webdriver.firefox.options import Options
 from selenium import webdriver
-from . import ctf
+from . import ctf   # pylint: disable=no-name-in-module
 
 
 class Browser(commands.Cog, name="browser"):
@@ -93,7 +93,7 @@ class Browser(commands.Cog, name="browser"):
         opts.set_headless()
 
         profile = webdriver.FirefoxProfile()
-        profile.DEFAULT_PREFERENCES["frozen"]["network.cookie.cookieBehavior"] = 4
+        profile.DEFAULT_PREFERENCES["frozen"]["network.cookie.cookieBehavior"] = 4  # pylint: disable=unsubscriptable-object
         self.browser = webdriver.Firefox(options=opts, firefox_profile=profile)
         self.browser.set_page_load_timeout(10)
         self.browser.delete_all_cookies()

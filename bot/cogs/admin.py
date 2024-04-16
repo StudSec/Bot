@@ -42,7 +42,7 @@ class Admin(commands.Cog, name="admin"):
             print(dir(ctx.bot.cogs[cog]))
             msg += f"- {cog}\n"
         msg += "```"
-        
+
         await ctx.send(msg)
 
 

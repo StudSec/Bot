@@ -5,10 +5,10 @@ checks the StudSec calendar and creates a matching event..
 """
 
 import urllib.request
-from datetime import datetime, timedelta
+from datetime import datetime
 
-import icalendar
 import logging
+import icalendar
 import recurring_ical_events
 from discord.ext import commands, tasks
 from discord import EntityType, PrivacyLevel
@@ -24,7 +24,8 @@ class Calendar(commands.Cog, name="calendar"):
     @tasks.loop(minutes=1)
     async def update_events(self) -> None:
         """Checks the calendar, and adds/updates events if needed"""
-        ical_string = urllib.request.urlopen(self.bot.config["events_calendar"]).read()
+        with urllib.request.urlopen(self.bot.config["events_calendar"]) as u:
+            ical_string = u.read()
         calendar = icalendar.Calendar.from_ical(ical_string)
 
         current = datetime.now()
@@ -82,9 +83,9 @@ class Calendar(commands.Cog, name="calendar"):
                         )
                     )
 
-                    await message.add_reaction("❌")                            
-            except Exception as e:
-                logging.error(f"Error in calendar event {event['SUMMARY']}: {Exception} {e}")
+                    await message.add_reaction("❌")
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                logging.error("Error in calendar event %s: %s %s", event['SUMMARY'], Exception, e)
 
     @update_events.before_loop
     async def before_loop(self) -> None:

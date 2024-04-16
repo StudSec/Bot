@@ -52,7 +52,7 @@ class Pwncrates(commands.Cog, name="pwncrates"):
         new_scoreboard = "```\n"
         # API already orders users by score, we can take top 25
         for user in scoreboard[:25]:
-            new_scoreboard += f"{user['position']:<2} {user['username'].replace('`', ''):<31} {user['score']:>5}\n"
+            new_scoreboard += f"{user['position']:<2} {user['username'].replace('`', ''):<31} {user['score']:>5}\n"     # pylint: disable=line-too-long
         new_scoreboard += "```"
 
         scoreboard_channel = self.bot.get_channel(

@@ -26,7 +26,7 @@ class StudBot(commands.Bot):
         - The intents and sets the prefix for `super`;
         """
         self.path = f"{os.path.realpath(os.path.dirname(__file__))}"
-        with open(f"{self.path}/config.json", "r") as file:
+        with open(f"{self.path}/config.json", "r", encoding="utf-8") as file:
             self.config = json.load(file)
 
         intents = discord.Intents.default()
@@ -43,7 +43,7 @@ class StudBot(commands.Bot):
             if file.endswith(".py") and not file == "ctf.py":
                 logging.info("Loading cog: %s", colored(file, "blue"))
                 await self.load_extension(f"bot.cogs.{file[:-3]}")
- 
+
     async def setup_hook(self) -> None:
         """
         Runs when the bot starts for the first time.
