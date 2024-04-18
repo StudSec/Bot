@@ -1,0 +1,27 @@
+{
+    "events_calendar": "https://calendar.google.com/calendar/ical/644219a2a0165e6bd35a8c609d442ea539c78c160709630e1dbd93b84cc0eb50%40group.calendar.google.com/public/basic.ics",
+    "ctf_calendar": "https://calendar.google.com/calendar/ical/df48a3937bfc1a26204aeb769da84778b6dfda5be4e1d70acb91c71fd626d78f%40group.calendar.google.com/public/basic.ics",
+    "calendar_announcement": {
+        "message": [
+            "**{title} | {date}**",
+            "",
+            "{description}",
+            "",
+            "<@&1080528650140647454>. If your interested in coming, join the discord event! If you can't/won't make it, react with ❌",
+            "",
+            "{url}"
+        ]   
+    },
+
+    "roles": {
+        "0x0A": 988439047296917526,
+        "0x05": 988439003646787664,
+        "0x01": 988438939394248784
+    },
+
+    "channel": {
+        "scoreboard": 988434368655687760,
+        "announcements": 881230276049633360
+    },
+    "server_id": 880765355935535165
+}
