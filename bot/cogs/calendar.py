@@ -49,9 +49,6 @@ class Calendar(commands.Cog, name="calendar"):
 
                 if event["DTSTART"].dt - timedelta(hours=3) < datetime.now(
                     event["DTSTART"].dt.tzinfo
-                ) or (
-                    event["DTSTART"].dt - timedelta(hours=48)
-                    > datetime.now(event["DTSTART"].dt.tzinfo)
                 ):
                     return
 
