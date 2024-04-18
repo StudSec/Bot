@@ -14,7 +14,7 @@ from discord import app_commands
 from discord.ext import commands
 from selenium.webdriver.firefox.options import Options
 from selenium import webdriver
-from . import ctf   # pylint: disable=no-name-in-module
+from . import ctf  # pylint: disable=no-name-in-module
 
 
 class Browser(commands.Cog, name="browser"):
@@ -36,8 +36,18 @@ class Browser(commands.Cog, name="browser"):
         challenge="The challenge to setup for",
         url="Your crafted url",
     )
+    @app_commands.choices(
+        challenge=[
+            app_commands.Choice(name="EX-SS", value="exss"),
+            app_commands.Choice(name="My Little Browser", value="mlb"),
+            app_commands.Choice(name="corn", value="corn"),
+        ]
+    )
     async def visit(
-        self, interaction: discord.Interaction, challenge: str, url: str
+        self,
+        interaction: discord.Interaction,
+        challenge: app_commands.Choice[str],
+        url: str,
     ) -> None:
         """The command to visit a given link for a challenge
 
@@ -50,6 +60,8 @@ class Browser(commands.Cog, name="browser"):
             CommandOnCooldown: If a user tries to use it within a 60 second cooldown
         """
 
+        challenge_choice = challenge.value
+
         _URL_REGEX = re.compile(  # pylint: disable=invalid-name
             r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b"
             r"([-a-zA-Z0-9()@:%_\+.~#?&//=]*)"
@@ -59,10 +71,12 @@ class Browser(commands.Cog, name="browser"):
             return await interaction.response.send_message(
                 "This command can only be used in DMs!", ephemeral=True
             )
-        if challenge not in self.challenges:
+
+        if challenge_choice not in self.challenges:
             return await interaction.response.send_message(
-                "Invalid challenge, options are corn/exss/mlb", ephemeral=True
+                "Invalid challenge chosen!", ephemeral=True
             )
+
         if not re.match(_URL_REGEX, url):
             return await interaction.response.send_message(
                 "Invalid URL, try again", ephemeral=True
@@ -70,7 +84,7 @@ class Browser(commands.Cog, name="browser"):
 
         await interaction.response.send_message("Visiting link...")
         message = await interaction.original_response()
-        self.setup_challenge(challenge)
+        self.setup_challenge(challenge_choice)
 
         try:
             self.browser.get(url)
@@ -93,7 +107,9 @@ class Browser(commands.Cog, name="browser"):
         opts.set_headless()
 
         profile = webdriver.FirefoxProfile()
-        profile.DEFAULT_PREFERENCES["frozen"]["network.cookie.cookieBehavior"] = 4  # pylint: disable=unsubscriptable-object
+        profile.DEFAULT_PREFERENCES["frozen"][
+            "network.cookie.cookieBehavior"
+        ] = 4  # pylint: disable=unsubscriptable-object
         self.browser = webdriver.Firefox(options=opts, firefox_profile=profile)
         self.browser.set_page_load_timeout(10)
         self.browser.delete_all_cookies()

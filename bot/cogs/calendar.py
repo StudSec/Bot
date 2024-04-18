@@ -5,7 +5,7 @@ checks the StudSec calendar and creates a matching event..
 """
 
 import urllib.request
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import logging
 import traceback
@@ -43,6 +43,18 @@ class Calendar(commands.Cog, name="calendar"):
         for event in events:
             # NOTE: does not support dates, only events with set start and end times.
             try:
+                for scheduled_event in await guild.fetch_scheduled_events():
+                    if scheduled_event.start_time == event["DTSTART"].dt:
+                        return
+
+                if event["DTSTART"].dt - timedelta(hours=3) < datetime.now(
+                    event["DTSTART"].dt.tzinfo
+                ) or (
+                    event["DTSTART"].dt - timedelta(hours=48)
+                    > datetime.now(event["DTSTART"].dt.tzinfo)
+                ):
+                    return
+
                 # Fill in missing keys
                 description = str(event.get("DESCRIPTION", ""))
                 location = str(event.get("LOCATION", ""))
@@ -57,7 +69,7 @@ class Calendar(commands.Cog, name="calendar"):
                             location=location,
                             description=description,
                             entity_type=EntityType.external,
-                            privacy_level=PrivacyLevel.guild_only
+                            privacy_level=PrivacyLevel.guild_only,
                         )
                         break
                 else:
@@ -68,23 +80,29 @@ class Calendar(commands.Cog, name="calendar"):
                         location=location,
                         description=description,
                         entity_type=EntityType.external,
-                        privacy_level=PrivacyLevel.guild_only
+                        privacy_level=PrivacyLevel.guild_only,
                     )
 
                     message = await self.bot.get_channel(
                         self.bot.config["channel"]["announcements"]
                     ).send(
-                        "\n".join(self.bot.config["calendar_announcement"]["message"]).format(
+                        "\n".join(
+                            self.bot.config["calendar_announcement"]["message"]
+                        ).format(
                             title=event["SUMMARY"],
-                            date=event["DTSTART"].dt.strftime('%H:%M %d/%m/%Y'),
+                            date=event["DTSTART"].dt.strftime("%H:%M %d/%m/%Y"),
                             url=event_link.url,
-                            description=description
+                            description=description,
                         )
                     )
 
                     await message.add_reaction("❌")
             except Exception:  # pylint: disable=broad-exception-caught
-                logging.error("Error in calendar event %s:\n%s", event['SUMMARY'], traceback.format_exc())
+                logging.error(
+                    "Error in calendar event %s:\n%s",
+                    event["SUMMARY"],
+                    traceback.format_exc(),
+                )
 
     @update_events.before_loop
     async def before_loop(self) -> None:
