@@ -5,7 +5,7 @@ checks the StudSec calendar and creates a matching event..
 """
 
 import urllib.request
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 import logging
 import traceback
@@ -30,9 +30,10 @@ class Calendar(commands.Cog, name="calendar"):
         calendar = icalendar.Calendar.from_ical(ical_string)
 
         current = datetime.now()
+        future = datetime.date.today() + datetime.timedelta(days=10)
         events = recurring_ical_events.of(calendar).between(
             (current.year, current.month, current.day),
-            (current.year, current.month, current.day + 10),
+            (future.year, future.month, future.day),
         )
 
         guild = self.bot.get_guild(self.bot.config["server_id"])
