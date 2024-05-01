@@ -30,7 +30,7 @@ class Calendar(commands.Cog, name="calendar"):
         calendar = icalendar.Calendar.from_ical(ical_string)
 
         current = datetime.now()
-        future = datetime.date.today() + datetime.timedelta(days=10)
+        future = date.today() + timedelta(days=10)
         events = recurring_ical_events.of(calendar).between(
             (current.year, current.month, current.day),
             (future.year, future.month, future.day),
