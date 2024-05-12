@@ -44,14 +44,11 @@ class Calendar(commands.Cog, name="calendar"):
         for event in events:
             # NOTE: does not support dates, only events with set start and end times.
             try:
-                for scheduled_event in await guild.fetch_scheduled_events():
-                    if scheduled_event.start_time == event["DTSTART"].dt:
-                        return
-
+                # If the event is within 3 hours from now we no longer update it
                 if event["DTSTART"].dt - timedelta(hours=3) < datetime.now(
                     event["DTSTART"].dt.tzinfo
                 ):
-                    return
+                    continue
 
                 # Fill in missing keys
                 description = str(event.get("DESCRIPTION", ""))
