@@ -7,8 +7,19 @@ from datetime import datetime, timedelta, date
 import pytz
 import icalendar
 import recurring_ical_events
+from markdownify import MarkdownConverter
 from discord.ext import commands, tasks
 from discord import EntityType, PrivacyLevel, PermissionOverwrite
+
+
+class ParagraphConverter(MarkdownConverter):
+    def convert_p(self, el, text, convert_as_inline):
+        """Change parsing of p tag to have only one newline isntead of 2"""
+        return super().convert_p(el, text, convert_as_inline)[:-1]
+
+
+def md(html, **options):
+    return ParagraphConverter(**options).convert(html)
 
 
 class CTFEvents(commands.Cog, name="ctf_events"):
@@ -38,7 +49,7 @@ class CTFEvents(commands.Cog, name="ctf_events"):
 
         scheduled_events = await guild.fetch_scheduled_events()
 
-        for event in events:    # pylint: disable=too-many-nested-blocks
+        for event in events:  # pylint: disable=too-many-nested-blocks
             for scheduled_event in scheduled_events:
                 if scheduled_event.name == event["SUMMARY"]:
                     # This is a bit of a conflict, in the calendar we just want the days of
@@ -48,48 +59,61 @@ class CTFEvents(commands.Cog, name="ctf_events"):
 
                     # Update roles
                     for channel_category, channel_list in guild.by_category():
-                        if channel_category and \
-                            channel_category.name == f"CTFs - {event['DTSTART'].dt.strftime('%Y')}":
+                        if (
+                            channel_category
+                            and channel_category.name
+                            == f"CTFs - {event['DTSTART'].dt.strftime('%Y')}"
+                        ):
                             for channel in channel_list:
-                                if channel.name == event["SUMMARY"].replace(" ", "-").lower():
+                                if (
+                                    channel.name
+                                    == event["SUMMARY"].replace(" ", "-").lower()
+                                ):
                                     async for user in scheduled_event.users():
-                                        await channel.set_permissions(user, read_messages=True)
+                                        await channel.set_permissions(
+                                            user, read_messages=True
+                                        )
                                     break
                     break
             else:
-                timezone = pytz.timezone('Europe/Amsterdam')
+                timezone = pytz.timezone("Europe/Amsterdam")
                 await guild.create_scheduled_event(
                     name=event["SUMMARY"],
                     start_time=timezone.localize(
                         datetime.combine(event["DTSTART"].dt, datetime.min.time())
-                        ),
+                    ),
                     end_time=timezone.localize(
                         datetime.combine(event["DTEND"].dt, datetime.max.time())
-                        ),
+                    ),
                     location=str(event.get("LOCATION", "")),
-                    description=str(event.get("DESCRIPTION", "")),
+                    description=md(str(event.get("DESCRIPTION", ""))),
                     entity_type=EntityType.external,
-                    privacy_level=PrivacyLevel.guild_only
+                    privacy_level=PrivacyLevel.guild_only,
                 )
 
                 for channel_category, channel_list in guild.by_category():
-                    if channel_category and \
-                        channel_category.name == f"CTFs - {event['DTSTART'].dt.strftime('%Y')}":
+                    if (
+                        channel_category
+                        and channel_category.name
+                        == f"CTFs - {event['DTSTART'].dt.strftime('%Y')}"
+                    ):
                         category = channel_category
                         break
                 else:
                     category = await guild.create_category(
                         f"CTFs - {event['DTSTART'].dt.strftime('%Y')}"
-                        )
+                    )
 
                 overwrites = {
                     guild.default_role: PermissionOverwrite(read_messages=False),
                 }
 
-                forum = await category.create_forum(event["SUMMARY"], overwrites=overwrites)
+                forum = await category.create_forum(
+                    event["SUMMARY"], overwrites=overwrites
+                )
                 await forum.create_thread(
                     name="General",
-                    content=f"General discussion thread for {event['SUMMARY']}"
+                    content=f"General discussion thread for {event['SUMMARY']}",
                 )
 
                 # This method only works for messages, to my knowledge there is currently no way to

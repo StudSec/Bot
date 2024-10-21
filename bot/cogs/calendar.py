@@ -11,8 +11,19 @@ import logging
 import traceback
 import icalendar
 import recurring_ical_events
+from markdownify import MarkdownConverter
 from discord.ext import commands, tasks
 from discord import EntityType, PrivacyLevel
+
+
+class ParagraphConverter(MarkdownConverter):
+    def convert_p(self, el, text, convert_as_inline):
+        """Change parsing of p tag to have only one newline isntead of 2"""
+        return super().convert_p(el, text, convert_as_inline)[:-1]
+
+
+def md(html, **options):
+    return ParagraphConverter(**options).convert(html)
 
 
 class Calendar(commands.Cog, name="calendar"):
@@ -51,7 +62,7 @@ class Calendar(commands.Cog, name="calendar"):
                     continue
 
                 # Fill in missing keys
-                description = str(event.get("DESCRIPTION", ""))
+                description = md(str(event.get("DESCRIPTION", "")))
                 location = str(event.get("LOCATION", ""))
 
                 for scheduled_event in scheduled_events:
