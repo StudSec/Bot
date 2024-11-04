@@ -33,6 +33,7 @@ class StudBot(commands.Bot):
         intents.members = True
         intents.message_content = True
         intents.guild_messages = True
+        intents.guild_scheduled_events = True
 
         # prefix only used for sync command
         super().__init__(intents=intents, command_prefix="!")
@@ -95,8 +96,7 @@ def main() -> None:
     load_dotenv()
     bot = StudBot()
     bot.tree.on_error = bot.on_tree_error
-    bot.run(os.getenv("DISCORD_TOKEN"))
-
+    bot.run(os.getenv("DISCORD_TOKEN"), log_level=logging.INFO)
 
 
 if __name__ == "__main__":

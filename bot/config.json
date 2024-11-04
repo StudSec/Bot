@@ -1,6 +1,6 @@
 {
-    "events_calendar": "https://calendar.google.com/calendar/ical/644219a2a0165e6bd35a8c609d442ea539c78c160709630e1dbd93b84cc0eb50%40group.calendar.google.com/public/basic.ics",
-    "ctf_calendar": "https://calendar.google.com/calendar/ical/df48a3937bfc1a26204aeb769da84778b6dfda5be4e1d70acb91c71fd626d78f%40group.calendar.google.com/public/basic.ics",
+    "events_calendar": "https://calendar.google.com/calendar/ical/c_7973268d7a019bd2b163e02c1af626467a52ad62d02ccb71f6d6c16c5a2ec694%40group.calendar.google.com/public/basic.ics",
+    "ctf_calendar": "https://calendar.google.com/calendar/ical/c_eed0bc863407ff7bdf76ce900b8082f56efd24fd171045c434fe088304aa52d3%40group.calendar.google.com/public/basic.ics",
     "calendar_announcement": {
         "message": [
             "**{title} | {date}**",
