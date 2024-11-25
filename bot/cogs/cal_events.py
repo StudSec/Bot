@@ -4,7 +4,7 @@
 import logging
 from datetime import timedelta, datetime
 
-from common.base_events import BaseEvents
+from .common.base_events import BaseEvents
 from discord import ScheduledEvent, Guild
 from discord.ext import commands
 
@@ -16,7 +16,7 @@ class CalendarEvents(BaseEvents, name="cal_events"):
         super().__init__(bot, calendar_url=bot.config["events_calendar"])
 
     async def handle_events(
-        self, guild: Guild, event_data: dict, scheduled_event: ScheduledEvent | None
+        self, guild: Guild, event_data: dict, scheduled_event: ScheduledEvent
     ):
         """Handles calendar events by creating and updating Discord events."""
         if event_data["start_time"] - timedelta(hours=3) < datetime.now(

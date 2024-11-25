@@ -2,10 +2,8 @@
 """
 
 import logging
-from datetime import datetime
 
-import pytz
-from common.base_events import BaseEvents
+from .common.base_events import BaseEvents
 from discord import ScheduledEvent, User, Guild, PermissionOverwrite
 from discord.ext import commands
 
@@ -14,10 +12,10 @@ class CTFEvents(BaseEvents, name="ctf_events"):
     """Manages CTF related integration stuff in the discord"""
 
     def __init__(self, bot: commands.Bot):
-        super().__init__(bot, calendar_url=bot.config["ctf_calendar"])
+        super().__init__(bot, calendar_url=bot.config["ctf_calendar"], delta_days=30)
 
     async def handle_events(
-        self, guild: Guild, event_data: dict, scheduled_event: ScheduledEvent | None
+        self, guild: Guild, event_data: dict, scheduled_event: ScheduledEvent
     ):
         """Handles CTF-specific events by creating and updating Discord events and channels."""
         if not scheduled_event:
@@ -26,13 +24,6 @@ class CTFEvents(BaseEvents, name="ctf_events"):
             # But the event itself we might want to manually update the times.
             # Because of this, we don't make the event editable after creation.
 
-            timezone = pytz.timezone("Europe/Amsterdam")
-            event_data["start_time"] = timezone.localize(
-                datetime.combine(event_data["start_time"], datetime.min.time())
-            )
-            event_data["end_time"] = timezone.localize(
-                datetime.combine(event_data["end_time"], datetime.max.time())
-            )
             await guild.create_scheduled_event(**event_data)
             logging.info("Created CTF event %s", event_data["name"])
 
@@ -40,13 +31,13 @@ class CTFEvents(BaseEvents, name="ctf_events"):
                 if (
                     channel_category
                     and channel_category.name
-                    == f"CTFs - {event_data["start_time"].strftime('%Y')}"
+                    == f"CTFs - {event_data['start_time'].strftime('%Y')}"
                 ):
                     category = channel_category
                     break
             else:
                 category = await guild.create_category(
-                    f"CTFs - {event_data["start_time"].strftime('%Y')}"
+                    f"CTFs - {event_data['start_time'].strftime('%Y')}"
                 )
 
             overwrites = {
@@ -58,7 +49,7 @@ class CTFEvents(BaseEvents, name="ctf_events"):
             )
             await forum.create_thread(
                 name="General",
-                content=f"General discussion thread for {event_data["name"]}",
+                content=f"General discussion thread for {event_data['name']}",
             )
             logging.info("Created CTF forum %s", event_data["name"])
 

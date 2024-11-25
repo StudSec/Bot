@@ -26,9 +26,10 @@ def md(html, **options):  # pylint: disable=missing-function-docstring
 class BaseEvents(commands.Cog):
     """A base class for calendar-based event cogs in Discord."""
 
-    def __init__(self, bot: commands.Bot, calendar_url: str):
+    def __init__(self, bot: commands.Bot, calendar_url: str, delta_days=10):
         self.bot = bot
         self.calendar_url = calendar_url
+        self.delta_days = delta_days
         self.update_events.start()  # pylint: disable=no-member
 
     @tasks.loop(minutes=1)
@@ -39,7 +40,7 @@ class BaseEvents(commands.Cog):
         calendar = icalendar.Calendar.from_ical(ical_string)
         events = recurring_ical_events.of(calendar).between(
             datetime.now(),
-            datetime.now() + timedelta(days=10),
+            datetime.now() + timedelta(days=self.delta_days),
         )
 
         guild = self.bot.get_guild(self.bot.config["server_id"])
@@ -73,7 +74,7 @@ class BaseEvents(commands.Cog):
                 )
 
     async def handle_events(
-        self, guild: Guild, event_data: dict, scheduled_event: ScheduledEvent | None
+        self, guild: Guild, event_data: dict, scheduled_event: ScheduledEvent
     ):
         """To be implemented by subclasses to handle specific event types."""
         raise NotImplementedError("Subclasses should implement this method.")
