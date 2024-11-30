@@ -9,7 +9,7 @@ import logging
 import json
 
 import discord
-from discord import app_commands
+from discord import app_commands, PermissionOverwrite
 from discord.ext import commands
 from discord.ext.commands import Context
 from dotenv import load_dotenv
@@ -25,6 +25,7 @@ class StudBot(commands.Bot):
         - The different configurations inside the class, such as the path;
         - The intents and sets the prefix for `super`;
         """
+        self.channels = {}
         self.path = f"{os.path.realpath(os.path.dirname(__file__))}"
         with open(f"{self.path}/config.json", "r", encoding="utf-8") as file:
             self.config = json.load(file)
@@ -38,6 +39,35 @@ class StudBot(commands.Bot):
         # prefix only used for sync command
         super().__init__(intents=intents, command_prefix="!")
 
+    async def setup_channels(self) -> None:
+        """Gets or sets up the channels, possible restricted, and sets the channels class member"""
+        guild = self.get_guild(self.config["server_id"])
+        public = self.config["public"]
+        private = self.config["private"]
+
+        for name in public["channels"] + private["channels"]:
+            channel = next((c for c in guild.channels if c.name == name), None)
+            if not channel:
+                logging.info("Creating channel %s", name)
+
+                overwrites = None
+                if name in private["channels"]:
+                    overwrites = {
+                        guild.default_role: PermissionOverwrite(view_channel=False),
+                    }
+                    for role in (r for r in guild.roles if r.name in private["roles"]):
+                        overwrites[role] = PermissionOverwrite(view_channel=True)
+                channel = (
+                    await guild.create_voice_channel(name=name, overwrites=overwrites)
+                    if "voice" in name
+                    else await guild.create_text_channel(
+                        name=name, overwrites=overwrites
+                    )
+                )
+
+            self.channels[name] = channel.id
+            logging.info("Gathered channel %s", name)
+
     async def load_cogs(self) -> None:
         """Loads in all the cogs defined in the `bot/cogs` directory"""
         for file in os.listdir(f"{self.path}/cogs"):
@@ -45,9 +75,9 @@ class StudBot(commands.Bot):
                 logging.info("Loading cog: %s", colored(file, "blue"))
                 await self.load_extension(f"bot.cogs.{file[:-3]}")
 
-    async def setup_hook(self) -> None:
+    async def on_ready(self):
         """
-        Runs when the bot starts for the first time.
+        Runs when the bot is ready and fully connected
         entrypoint to call all the other setup functions
         """
         logging.info("-" * 20)
@@ -59,6 +89,7 @@ class StudBot(commands.Bot):
             logging.info("+ %s", colored(server, "blue"))
         logging.info("-" * 20)
 
+        await self.setup_channels()
         await self.load_cogs()
 
     async def on_command_error(  # pylint: disable=arguments-differ, unused-argument

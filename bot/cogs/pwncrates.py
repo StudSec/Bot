@@ -9,8 +9,9 @@ import logging
 import traceback
 import itertools
 
-import discord
 import requests
+import discord
+from discord import Guild
 from discord.utils import get
 from discord.ext import commands, tasks
 
@@ -20,6 +21,7 @@ class Pwncrates(commands.Cog, name="pwncrates"):
 
     def __init__(self, bot) -> None:
         self.bot = bot
+        self.roles = []
         self.update_scoreboard.start()  # pylint: disable=no-member
 
     @staticmethod
@@ -40,6 +42,21 @@ class Pwncrates(commands.Cog, name="pwncrates"):
             )["discord_id"]
         )
 
+    async def adjust_roles(self, scoreboard: json, channel: discord.channel) -> None:
+        """Updates the rank roles, if needed"""
+        for i, user in enumerate(scoreboard[:10]):
+            try:
+                discord_id = self.get_discord_id(user["user_id"])
+                discord_user = await channel.guild.fetch_member(discord_id)
+            except (discord.errors.NotFound, TypeError):
+                continue
+
+            if not discord_user:
+                continue  # User might not be in the discord server
+
+            if self.roles[i] not in discord_user.roles:
+                await discord_user.add_roles(self.roles[i])
+
     @tasks.loop(seconds=30)
     async def update_scoreboard(self) -> None:
         """A loop to update the scoreboard on discord and (re)assign rank roles, if needed"""
@@ -52,20 +69,17 @@ class Pwncrates(commands.Cog, name="pwncrates"):
         new_scoreboard = "```\n"
         # API already orders users by score, we can take top 25
         for user in scoreboard[:25]:
-            new_scoreboard += f"{user['position']:<2} {user['username'].replace('`', ''):<31} {user['score']:>5}\n"     # pylint: disable=line-too-long
+            new_scoreboard += f"{user['position']:<2} {user['username'].replace('`', ''):<31} {user['score']:>5}\n"  # pylint: disable=line-too-long
         new_scoreboard += "```"
 
-        scoreboard_channel = self.bot.get_channel(
-            self.bot.config["channel"]["scoreboard"]
-        )
-        if scoreboard_channel is None:
-            return
+        guild: Guild = self.bot.get_guild(self.bot.config["server_id"])
+        scoreboard_channel = guild.get_channel(self.bot.channels["scoreboard"])
 
         try:
             latest_message = await get(scoreboard_channel.history())
-            if new_scoreboard == latest_message.content:
-                return
             if latest_message:
+                if new_scoreboard == latest_message.content:
+                    return
                 await latest_message.delete()
             await scoreboard_channel.send(new_scoreboard)
             await self.adjust_roles(scoreboard, scoreboard_channel)
@@ -77,35 +91,26 @@ class Pwncrates(commands.Cog, name="pwncrates"):
             logging.error("Error in pwncrates, %s", traceback.format_exc())
             return
 
+    async def setup_roles(self, guild: Guild) -> None:
+        """Gets the roles and fills the roles class member with them"""
+        guild: Guild = self.bot.get_guild(self.bot.config["server_id"])
+
+        for name, i in itertools.zip_longest(
+            self.bot.config["pwncrates"]["roles"], [1, 4, 5]
+        ):
+            role = next((r for r in guild.roles if r.name == name), None)
+            if not role:
+                role = await guild.create_role(name=name)
+            self.roles += [role] * i
+
     @update_scoreboard.before_loop
     async def before_loop(self) -> None:
-        """Make sure the bot is ready"""
+        """Make sure the bot is ready, clean scoreboard channel, and get/make needed roles"""
+        guild: Guild = self.bot.get_guild(self.bot.config["server_id"])
+
         await self.bot.wait_until_ready()
-
-    async def adjust_roles(self, scoreboard: json, channel: discord.channel) -> None:
-        """Updates the rank roles, if needed"""
-        roles = list(
-            itertools.chain.from_iterable(
-                [
-                    [get(channel.guild.roles, id=self.bot.config["roles"]["0x01"])],
-                    [get(channel.guild.roles, id=self.bot.config["roles"]["0x05"])] * 4,
-                    [get(channel.guild.roles, id=self.bot.config["roles"]["0x0A"])] * 5,
-                ]
-            )
-        )
-
-        for i, user in enumerate(scoreboard[:10]):
-            try:
-                discord_id = self.get_discord_id(user["user_id"])
-                discord_user = await channel.guild.fetch_member(discord_id)
-            except (discord.errors.NotFound, TypeError):
-                continue
-
-            if not discord_user:
-                continue    # User might not be in the discord server
-
-            if roles[i] not in discord_user.roles:
-                await discord_user.add_roles(roles[i])
+        await guild.get_channel(self.bot.channels["scoreboard"]).purge(limit=20)
+        await self.setup_roles(guild)
 
 
 async def setup(bot) -> None:  # pylint: disable=missing-function-docstring

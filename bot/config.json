@@ -1,8 +1,8 @@
 {
-    "events_calendar": "https://calendar.google.com/calendar/ical/c_7973268d7a019bd2b163e02c1af626467a52ad62d02ccb71f6d6c16c5a2ec694%40group.calendar.google.com/public/basic.ics",
-    "ctf_calendar": "https://calendar.google.com/calendar/ical/c_eed0bc863407ff7bdf76ce900b8082f56efd24fd171045c434fe088304aa52d3%40group.calendar.google.com/public/basic.ics",
-    "calendar_announcement": {
-        "message": [
+    "server_id": 880765355935535165,
+    "cal": {
+        "calendar": "https://calendar.google.com/calendar/ical/c_7973268d7a019bd2b163e02c1af626467a52ad62d02ccb71f6d6c16c5a2ec694%40group.calendar.google.com/public/basic.ics",
+        "announcement": [
             "**{title} | {date}**",
             "",
             "{description}",
@@ -10,18 +10,32 @@
             "<@&1080528650140647454>. If your interested in coming, join the discord event! If you can't/won't make it, react with ❌",
             "",
             "{url}"
-        ]   
+        ]
     },
-
-    "roles": {
-        "0x0A": 988439047296917526,
-        "0x05": 988439003646787664,
-        "0x01": 988438939394248784
+    "ctf": {
+        "calendar": "https://calendar.google.com/calendar/ical/c_eed0bc863407ff7bdf76ce900b8082f56efd24fd171045c434fe088304aa52d3%40group.calendar.google.com/public/basic.ics"
     },
-
-    "channel": {
-        "scoreboard": 988434368655687760,
-        "announcements": 881230276049633360
+    "pwncrates": {
+        "roles": [
+            "0x01",
+            "0x05",
+            "0x0A"
+        ]
     },
-    "server_id": 880765355935535165
+    "public": {
+        "channels": [
+            "announcements",
+            "scoreboard"
+        ]
+    },
+    "private": {
+        "channels": [
+            "announcements-preview",
+            "announcements-voice"
+        ],
+        "roles": [
+            "Admin",
+            "Board"
+        ]
+    }
 }
