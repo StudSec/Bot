@@ -1,4 +1,4 @@
-FROM python:3.8-slim-buster
+FROM python:3.12-slim-bookworm
 
 RUN apt-get update && apt-get install -y wget firefox-esr pipx python3-venv
 RUN pipx ensurepath
