@@ -82,8 +82,8 @@ async def setup(bot) -> None:  # pylint: disable=missing-function-docstring
 
 ## TODO
 Some features that could be added
-- load/reload/unload functionality
+- load/reload/unload functionality?
 - status message(s)?
 - update selenium?
 - update ctf flag loading?
-- better calendar system?
+- remove id hardcoding

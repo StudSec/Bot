@@ -44,9 +44,6 @@ class BaseEvents(commands.Cog):
         )
 
         guild = self.bot.get_guild(self.bot.config["server_id"])
-        if guild is None:
-            return
-
         scheduled_events = await guild.fetch_scheduled_events()
         for event in events:
             try:
@@ -60,6 +57,16 @@ class BaseEvents(commands.Cog):
                     "entity_type": EntityType.external,
                     "privacy_level": PrivacyLevel.guild_only,
                 }
+
+                if len(event_data["description"]) > 999:
+                    # event descriptions are max 1000 characters, API call will fail if passed
+                    # messages have limit of 2000, no need for seperate check there
+                    logging.info(
+                        "Cutting off event %s, %d too long!",
+                        event_data["name"],
+                        len(event_data["description"]),
+                    )
+                    event_data["description"] = event_data["description"][:995] + "..."
 
                 scheduled_event = next(
                     (e for e in scheduled_events if e.name == event_data["name"]), None
