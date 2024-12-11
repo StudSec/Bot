@@ -1,9 +1,11 @@
 # Bot
+
 The *official* StudSec bot written in Python using [discord.py](https://discordpy.readthedocs.io/en/stable/).
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ## Installation and Usage
+
 To install the needed dependencies, first make sure you have [Poetry](https://python-poetry.org/docs/#installation)
  installed. After which, you can install the dependencies using
 
@@ -11,10 +13,10 @@ To install the needed dependencies, first make sure you have [Poetry](https://py
 poetry install
 ```
 
-Then, to run the bot needs a discord token, which needs to be put in a new 
+Then, to run the bot needs a discord token, which needs to be put in a new
  `.env` file like so
 
-```
+```env
 DISCORD_TOKEN=your_token_here
 ```
 
@@ -25,6 +27,7 @@ poetry run bot
 ```
 
 ## Development
+
 If you would like to extend StudBots functionality, feel free to create a pull
  request. In the message please include a brief description of the functionality
  you added / changed, please note we will review any pull request and
@@ -36,17 +39,20 @@ The recommended development environment to develop in is using a python venv.
  You can enter one provided by poetry using
 
 ```sh
+poetry env use 3.8 # make sure python3.8 is installed
 poetry shell
 ```
 
 on top of this, this project (tries to) adhere to the google python style, and
  uses pylint for its linting and black for its styling. To do this simply enter
  a poetry shell and run
- ```sh
- pylint bot
- ```
+
+```sh
+pylint bot
+```
 
 ## Documentation
+
 To add a cog, use the following template
 
 ```py
@@ -81,7 +87,9 @@ async def setup(bot) -> None:  # pylint: disable=missing-function-docstring
 ```
 
 ## TODO
+
 Some features that could be added
+
 - load/reload/unload functionality?
 - status message(s)?
 - update selenium?

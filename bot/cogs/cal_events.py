@@ -1,10 +1,11 @@
 """This module sets up events in discord based on the calendar events
 """
 
+import hashlib
 import logging
 from datetime import timedelta, datetime
 
-from discord import ScheduledEvent, Guild, EntityType, Message
+from discord import ScheduledEvent, Guild, EntityType
 from discord.ext import commands
 
 from .common.base_events import BaseEvents
@@ -27,6 +28,10 @@ class CalendarEvents(BaseEvents, name="cal_events"):
             description=event_data["description"],
         )
 
+    def get_hash(self, event: ScheduledEvent) -> str:
+        """Calculates a hash for the event description"""
+        return hashlib.md5(event.description.encode()).hexdigest()
+
     async def handle_events(
         self, guild: Guild, event_data: dict, scheduled_event: ScheduledEvent
     ):
@@ -48,38 +53,36 @@ class CalendarEvents(BaseEvents, name="cal_events"):
         channel = guild.get_channel(self.bot.channels[channel_name])
 
         if scheduled_event:
-            message: Message = self.messages.get(
-                event_data["start_time"].strftime("%H:%M %d/%m/%Y")
-            )
+            message = self.messages.get(self.get_hash(scheduled_event))
 
-            if channel_name == "announcements" and (
-                (
-                    message
-                    and message.channel.name == "announcements-preview"
-                    and message.reactions[0].count <= 1
-                )
-                or scheduled_event.channel
-            ):
+            if channel_name == "announcements" and scheduled_event.channel:
+                if message:
+                    channel = guild.get_channel(
+                        self.bot.channels["announcements-preview"]
+                    )
+                    message = await channel.fetch_message(message)
+                    if message.reactions[0].count > 1:
+                        # event blocked to announce
+                        return
+
+                    await message.delete()
+                    self.messages.pop(self.get_hash(scheduled_event))
+
                 logging.info(
                     "Removing preview event %s to announce in announcements",
                     event_data["name"],
                 )
-                if message:
-                    del self.messages[
-                        event_data["start_time"].strftime("%H:%M %d/%m/%Y")
-                    ]
-                    await message.delete()
                 await scheduled_event.delete()
-                return
-
-            # update existing event entry and message
-            await scheduled_event.edit(**event_data)
-            if message:
-                await message.edit(
-                    content=self.format_announcement(
-                        self.bot.config, event_data, scheduled_event.url
+            else:
+                # update existing event entry and message
+                await scheduled_event.edit(**event_data)
+                if message:
+                    message = await channel.fetch_message(message)
+                    await message.edit(
+                        content=self.format_announcement(
+                            self.bot.config, event_data, scheduled_event.url
+                        )
                     )
-                )
         else:
             # create event entry and message
             event = None
@@ -97,22 +100,13 @@ class CalendarEvents(BaseEvents, name="cal_events"):
                 )
 
                 event = await guild.create_scheduled_event(**event_data)
-
             message = await channel.send(
                 self.format_announcement(self.bot.config, event_data, event.url)
             )
-            self.messages[event_data["start_time"].strftime("%H:%M %d/%m/%Y")] = message
+            await message.add_reaction("❌")
+            self.messages[self.get_hash(event)] = message.id
 
             logging.info("Created event %s", event_data["name"])
-            await message.add_reaction("❌")
-
-    @commands.Cog.listener()
-    async def on_scheduled_event_delete(self, event: ScheduledEvent):
-        """
-        Triggered whenever a scheduled event is removed
-        Used to remove message entry on event complete
-        """
-        del self.messages[event.start_time.strftime("%H:%M %d/%m/%Y")]
 
 
 async def setup(bot) -> None:  # pylint: disable=missing-function-docstring
