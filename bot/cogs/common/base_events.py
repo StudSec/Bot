@@ -69,7 +69,7 @@ class BaseEvents(commands.Cog):
                     event_data["description"] = event_data["description"][:995] + "..."
 
                 scheduled_event = next(
-                    (e for e in scheduled_events if e.name == event_data["name"]), None
+                    (e for e in scheduled_events if e.name == event_data["name"].rstrip()), None
                 )
 
                 await self.handle_events(guild, event_data, scheduled_event)

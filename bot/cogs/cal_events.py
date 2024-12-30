@@ -103,7 +103,7 @@ class CalendarEvents(BaseEvents, name="cal_events"):
             message = await channel.send(
                 self.format_announcement(self.bot.config, event_data, event.url)
             )
-            await message.add_reaction("❌")
+            await message.add_reaction("🛑")
             self.messages[self.get_hash(event)] = message.id
 
             logging.info("Created event %s", event_data["name"])
