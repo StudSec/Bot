@@ -7,6 +7,7 @@ Run this file using `poetry` as described in the `README.md`
 import os
 import logging
 import json
+import sqlite3
 
 import discord
 from discord import app_commands, PermissionOverwrite
@@ -68,6 +69,13 @@ class StudBot(commands.Bot):
             self.channels[name] = channel.id
             logging.info("Gathered channel %s", name)
 
+    async def create_db(self) -> None:
+        """Creates the database for the events cog"""
+        with sqlite3.connect("events.db") as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS events (event_id INTEGER PRIMARY KEY, message_id INTEGER, is_preview INTEGER)"
+            )
+
     async def load_cogs(self) -> None:
         """Loads in all the cogs defined in the `bot/cogs` directory"""
         for file in os.listdir(f"{self.path}/cogs"):
@@ -89,6 +97,7 @@ class StudBot(commands.Bot):
             logging.info("+ %s", colored(server, "blue"))
         logging.info("-" * 20)
 
+        await self.create_db()
         await self.setup_channels()
         await self.load_cogs()
 

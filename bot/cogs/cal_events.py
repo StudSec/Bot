@@ -1,8 +1,8 @@
 """This module sets up events in discord based on the calendar events
 """
 
-import hashlib
 import logging
+import sqlite3
 from datetime import timedelta, datetime
 
 from discord import ScheduledEvent, Guild, EntityType
@@ -15,7 +15,6 @@ class CalendarEvents(BaseEvents, name="cal_events"):
     """Manages general calendar events for hack&chill and other events in Discord."""
 
     def __init__(self, bot: commands.Bot):
-        self.messages = {}
         super().__init__(bot, calendar_url=bot.config["cal"]["calendar"])
 
     @staticmethod
@@ -28,85 +27,123 @@ class CalendarEvents(BaseEvents, name="cal_events"):
             description=event_data["description"],
         )
 
-    def get_hash(self, event: ScheduledEvent) -> str:
-        """Calculates a hash for the event description"""
-        return hashlib.md5(event.description.encode()).hexdigest()
+    async def _handle_existing_event(
+        self,
+        guild: Guild,
+        event_data: dict,
+        scheduled_event: ScheduledEvent,
+        channel,
+    ):
+        """Handles existing events by updating or deleting them"""
+        with sqlite3.connect("events.db") as conn:
+            conn.row_factory = sqlite3.Row
+            row = conn.execute(
+                "SELECT * FROM events WHERE event_id = ?",
+                (scheduled_event.id,),
+            ).fetchone()
+
+        if row and channel.name == "announcements" and row["is_preview"]:
+            # The event was a preview event and should be deleted
+            channel = guild.get_channel(
+                self.bot.channels[self.bot.config["private"]["channels"][0]]
+            )
+
+            message = await channel.fetch_message(row["message_id"])
+            if message.reactions[0].count > 1:
+                logging.info(
+                    "Event %s has been blocked, not making public",
+                    event_data["name"],
+                )
+                return
+            await message.delete()
+
+            await scheduled_event.delete()
+            with sqlite3.connect("events.db") as conn:
+                conn.execute(
+                    "DELETE FROM events WHERE event_id = ?", (scheduled_event.id,)
+                )
+
+            logging.info(
+                "Removed preview event %s to announce in announcements",
+                event_data["name"],
+            )
+            return
+
+        # Edit the existing event, message too if it is present in the DB
+        if row:
+            message = await channel.fetch_message(row["message_id"])
+            await message.edit(
+                content=self.format_announcement(
+                    self.bot.config, event_data, scheduled_event.url
+                )
+            )
+        await scheduled_event.edit(**event_data)
+
+    async def _create_event(self, guild: Guild, event_data: dict, channel):
+        """Creates an event in the guild, either as a private preview or as a public announcement"""
+        reaction = "❌"
+
+        if channel.name in self.bot.config["private"]["channels"]:
+            # The event is created in a voice channel as that is (currently) the only way
+            # to create an event with limited visibility. voice disallows location entry.
+            del event_data["location"]
+            event_data["entity_type"] = EntityType.voice
+            event_data["channel"] = guild.get_channel(
+                self.bot.channels["announcements-voice"]
+            )
+
+            reaction = "🛑"
+
+        logging.info("Creating event %s in %s", event_data["name"], channel.name)
+
+        event = await guild.create_scheduled_event(**event_data)
+        message = await channel.send(
+            self.format_announcement(self.bot.config, event_data, event.url)
+        )
+
+        await message.add_reaction(reaction)
+
+        with sqlite3.connect("events.db") as conn:
+            conn.execute(
+                "INSERT INTO events (event_id, message_id, is_preview) VALUES (?, ?, ?)",
+                (
+                    event.id,
+                    message.id,
+                    1 if channel.name in self.bot.config["private"]["channels"] else 0,
+                ),
+            )
+
+        logging.info("Created event %s in %s", event_data["name"], channel.name)
 
     async def handle_events(
-        self, guild: Guild, event_data: dict, scheduled_event: ScheduledEvent
+        self,
+        guild: Guild,
+        event_data: dict,
+        scheduled_event: ScheduledEvent,
     ):
         """Handles calendar events by creating and updating Discord events"""
         if event_data["start_time"] - timedelta(hours=3) < datetime.now(
             event_data["start_time"].tzinfo
         ):
-            # do not edit events 3 hours before the event takes place
+            # Do not edit events 3 hours before the event takes place
             return
 
         channel_name = (
-            "announcements-preview"
+            self.bot.config["private"]["channels"][0]
             if (
                 event_data["start_time"] - timedelta(days=self.delta_days - 1)
                 > datetime.now(event_data["start_time"].tzinfo)
             )
-            else "announcements"
+            else self.bot.config["public"]["channels"][0]
         )
         channel = guild.get_channel(self.bot.channels[channel_name])
 
         if scheduled_event:
-            message = self.messages.get(self.get_hash(scheduled_event))
-
-            if channel_name == "announcements" and scheduled_event.channel:
-                if message:
-                    channel = guild.get_channel(
-                        self.bot.channels["announcements-preview"]
-                    )
-                    message = await channel.fetch_message(message)
-                    if message.reactions[0].count > 1:
-                        # event blocked to announce
-                        return
-
-                    await message.delete()
-                    self.messages.pop(self.get_hash(scheduled_event))
-
-                logging.info(
-                    "Removing preview event %s to announce in announcements",
-                    event_data["name"],
-                )
-                await scheduled_event.delete()
-            else:
-                # update existing event entry and message
-                await scheduled_event.edit(**event_data)
-                if message:
-                    message = await channel.fetch_message(message)
-                    await message.edit(
-                        content=self.format_announcement(
-                            self.bot.config, event_data, scheduled_event.url
-                        )
-                    )
-        else:
-            # create event entry and message
-            event = None
-            if channel_name == "announcements":
-                logging.info("Creating event %s", event_data["name"])
-                event = await guild.create_scheduled_event(**event_data)
-            else:
-                logging.info("Creating preview event %s", event_data["name"])
-
-                # entity_type of voice disallows location entry
-                del event_data["location"]
-                event_data["entity_type"] = EntityType.voice
-                event_data["channel"] = guild.get_channel(
-                    self.bot.channels["announcements-voice"]
-                )
-
-                event = await guild.create_scheduled_event(**event_data)
-            message = await channel.send(
-                self.format_announcement(self.bot.config, event_data, event.url)
+            await self._handle_existing_event(
+                guild, event_data, scheduled_event, channel
             )
-            await message.add_reaction("🛑")
-            self.messages[self.get_hash(event)] = message.id
-
-            logging.info("Created event %s", event_data["name"])
+        else:
+            await self._create_event(guild, event_data, channel)
 
 
 async def setup(bot) -> None:  # pylint: disable=missing-function-docstring

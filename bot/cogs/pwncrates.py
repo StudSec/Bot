@@ -80,8 +80,9 @@ class Pwncrates(commands.Cog, name="pwncrates"):
             if latest_message:
                 if new_scoreboard == latest_message.content:
                     return
-                await latest_message.delete()
-            await scoreboard_channel.send(new_scoreboard)
+                latest_message.edit(content=new_scoreboard)
+            else:
+                await scoreboard_channel.send(new_scoreboard)
             await self.adjust_roles(scoreboard, scoreboard_channel)
         except ConnectionRefusedError:
             return
@@ -109,7 +110,6 @@ class Pwncrates(commands.Cog, name="pwncrates"):
         guild: Guild = self.bot.get_guild(self.bot.config["server_id"])
 
         await self.bot.wait_until_ready()
-        await guild.get_channel(self.bot.channels["scoreboard"]).purge(limit=20)
         await self.setup_roles(guild)
 
 
