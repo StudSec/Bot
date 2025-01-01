@@ -17,3 +17,4 @@ venv.bak/
 
 # no flags
 bot/cogs/ctf.py
+*.db
