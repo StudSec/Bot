@@ -33,9 +33,8 @@ class BaseEvents(commands.Cog):
         self.delta_days = delta_days
         self.update_events.start()  # pylint: disable=no-member
 
-    @tasks.loop(seconds=1)
+    @tasks.loop(minutes=1)
     async def update_events(self):
-        time.sleep(20)
         """Fetches events from the calendar and updates or creates Discord events as needed."""
         with urllib.request.urlopen(self.calendar_url) as u:
             ical_string = u.read()
