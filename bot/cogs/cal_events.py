@@ -81,7 +81,7 @@ class CalendarEvents(BaseEvents, name="cal_events"):
 
     async def _create_event(self, guild: Guild, event_data: dict, channel):
         """Creates an event in the guild, either as a private preview or as a public announcement"""
-        reaction = "❌"
+        reaction = None
 
         if channel.name in self.bot.config["private"]["channels"]:
             # The event is created in a voice channel as that is (currently) the only way
@@ -101,7 +101,8 @@ class CalendarEvents(BaseEvents, name="cal_events"):
             self.format_announcement(self.bot.config, event_data, event.url)
         )
 
-        await message.add_reaction(reaction)
+        if reaction:
+            await message.add_reaction(reaction)
 
         with sqlite3.connect("events.db") as conn:
             conn.execute(
