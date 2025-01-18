@@ -4,6 +4,7 @@
 from datetime import datetime, timedelta
 import traceback
 import logging
+import time
 
 import urllib.request
 import icalendar
@@ -32,8 +33,9 @@ class BaseEvents(commands.Cog):
         self.delta_days = delta_days
         self.update_events.start()  # pylint: disable=no-member
 
-    @tasks.loop(minutes=1)
+    @tasks.loop(seconds=1)
     async def update_events(self):
+        time.sleep(20)
         """Fetches events from the calendar and updates or creates Discord events as needed."""
         with urllib.request.urlopen(self.calendar_url) as u:
             ical_string = u.read()
@@ -60,13 +62,22 @@ class BaseEvents(commands.Cog):
 
                 if len(event_data["description"]) > 999:
                     # event descriptions are max 1000 characters, API call will fail if passed
-                    # messages have limit of 2000, no need for seperate check there
+                    # messages have limit of 2000, no need for separate check there
                     logging.info(
-                        "Cutting off event %s, %d too long!",
+                        "Cutting off event %s, %d description too long!",
                         event_data["name"],
                         len(event_data["description"]),
                     )
                     event_data["description"] = event_data["description"][:995] + "..."
+
+                if len(event_data["name"]) > 100:
+                    # event name are max 100 characters, API call will fail if passed
+                    logging.info(
+                        "Cutting off event %s, %d name too long!",
+                        event_data["name"],
+                        len(event_data["name"]),
+                    )
+                    event_data["name"] = event_data["name"][:95] + "..."
 
                 scheduled_event = next(
                     (e for e in scheduled_events if e.name == event_data["name"].rstrip()), None
@@ -89,4 +100,5 @@ class BaseEvents(commands.Cog):
     @update_events.before_loop
     async def before_loop(self):
         """Ensures the bot is ready before the loop starts."""
+        logging.info("running before_loop")
         await self.bot.wait_until_ready()
