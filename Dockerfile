@@ -12,10 +12,13 @@ RUN tar xvfz geckodriver-v0.29.1-linux64.tar.gz
 RUN chmod +x geckodriver
 RUN mv geckodriver /usr/local/bin
 
-# Copy over the bot and install
+# Install dependencies
 RUN mkdir -p app
 WORKDIR /app
-COPY pyproject.toml .env ./
+COPY pyproject.toml ./
+
+# Copy over rest of the bot
+COPY .env ./
 COPY bot ./bot
 RUN /root/.local/bin/poetry install
 
