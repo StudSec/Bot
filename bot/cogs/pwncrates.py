@@ -80,7 +80,7 @@ class Pwncrates(commands.Cog, name="pwncrates"):
             if latest_message:
                 if new_scoreboard == latest_message.content:
                     return
-                latest_message.edit(content=new_scoreboard)
+                await latest_message.edit(content=new_scoreboard)
             else:
                 await scoreboard_channel.send(new_scoreboard)
             await self.adjust_roles(scoreboard, scoreboard_channel)
