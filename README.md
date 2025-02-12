@@ -96,3 +96,4 @@ Some features that could be added
 - update selenium?
 - update ctf flag loading?
 - remove id hardcoding
+- events rework

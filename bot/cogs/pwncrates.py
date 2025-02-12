@@ -83,7 +83,7 @@ class Pwncrates(commands.Cog, name="pwncrates"):
             latest_message = await get(scoreboard_channel.history())
             if latest_message and new_scoreboard != latest_message.content:
                 await latest_message.edit(content=new_scoreboard)
-            else:
+            elif not latest_message:
                 await scoreboard_channel.send(new_scoreboard)
             await self.adjust_roles(scoreboard, scoreboard_channel)
         except ConnectionRefusedError:
