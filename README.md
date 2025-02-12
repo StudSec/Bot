@@ -3,6 +3,8 @@
 The *official* StudSec bot written in Python using [discord.py](https://discordpy.readthedocs.io/en/stable/).
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/pylint-dev/pylint)
+[![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
 ## Installation and Usage
 
@@ -13,14 +15,15 @@ To install the needed dependencies, first make sure you have [Poetry](https://py
 poetry install
 ```
 
-Then, to run the bot needs a discord token, which needs to be put in a new
- `.env` file like so
+Then, to run the bot needs a discord token and server id, which needs to be put
+ in a new `.env` file like so
 
 ```env
 DISCORD_TOKEN=your_token_here
+SERVER_ID=server_id_here
 ```
 
-After the discord token is set, you can run the bot using
+After the `.env` is set, you can run the bot locally using
 
 ```sh
 poetry run bot
@@ -39,7 +42,7 @@ The recommended development environment to develop in is using a python venv.
  You can enter one provided by poetry using
 
 ```sh
-poetry env use 3.8 # make sure python3.8 is installed
+poetry env use 3.9 # make sure python3.9 is installed
 poetry shell
 ```
 
@@ -95,3 +98,4 @@ Some features that could be added
 - update selenium?
 - update ctf flag loading?
 - remove id hardcoding
+- events rework

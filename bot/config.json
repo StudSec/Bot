@@ -1,5 +1,4 @@
 {
-    "server_id": 880765355935535165,
     "cal": {
         "calendar": "https://calendar.google.com/calendar/ical/c_7973268d7a019bd2b163e02c1af626467a52ad62d02ccb71f6d6c16c5a2ec694%40group.calendar.google.com/public/basic.ics",
         "announcement": [
@@ -7,7 +6,7 @@
             "",
             "{description}",
             "",
-            "<@&1080528650140647454>. If your interested in coming, join the discord event! If you can't/won't make it, react with ❌",
+            "<@&1080528650140647454>. If your interested in coming, join the discord event! If you can't/won't make it, react with :x:",
             "",
             "{url}"
         ]

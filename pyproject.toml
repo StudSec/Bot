@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bot"
-version = "2.1.1"
+version = "2.2.0"
 description = "The official StudSec bot written in Python"
 license = "GPL-3.0-only"
 authors = [
@@ -9,23 +9,27 @@ authors = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">=3.9,<3.10"
 "discord.py" = "^2.3.2"
 python-dotenv = "^1.0.1"
 termcolor = "^2.4.0"
 selenium = "^3.141.0"
-urllib3 = "1.26.16"
+urllib3 = "2.3.0"
 asyncio = "^3.4.3"
 requests = "^2.31.0"
 datetime = "^5.4"
 icalendar = "^6.1.0"
-recurring-ical-events = "^3.3.4"
+recurring-ical-events = "3.4.1"
 markdownify = "^0.14.1"
 
 
 [tool.poetry.group.dev.dependencies]
-black = "^24.2.0"
+black = "^25.1.0"
 pylint = "^3.0.3"
+mypy = "^1.15.0"
+types-selenium = "^3.141.9"
+types-requests = "^2.32.0.20241016"
+types-icalendar = "^6.1.0.20250119"
 
 [tool.poetry.scripts]
 bot = "bot.main:main"

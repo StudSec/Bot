@@ -1,3 +1,5 @@
 services:
   studbot:
     build: .
+    volumes:
+      - ./shared:/app/shared:Z
