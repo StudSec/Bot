@@ -4,12 +4,11 @@
 from datetime import datetime, timedelta
 import traceback
 import logging
-import time
 
 import urllib.request
-import icalendar
-import recurring_ical_events
-from markdownify import MarkdownConverter
+import icalendar  # type: ignore
+import recurring_ical_events  # type: ignore
+from markdownify import MarkdownConverter  # type: ignore
 from discord.ext import commands, tasks
 from discord import EntityType, PrivacyLevel, ScheduledEvent, Guild
 
@@ -33,7 +32,7 @@ class BaseEvents(commands.Cog):
         self.delta_days = delta_days
         self.update_events.start()  # pylint: disable=no-member
 
-    @tasks.loop(minutes=1)
+    @tasks.loop(minutes=5)
     async def update_events(self):
         """Fetches events from the calendar and updates or creates Discord events as needed."""
         with urllib.request.urlopen(self.calendar_url) as u:
@@ -79,7 +78,12 @@ class BaseEvents(commands.Cog):
                     event_data["name"] = event_data["name"][:95] + "..."
 
                 scheduled_event = next(
-                    (e for e in scheduled_events if e.name == event_data["name"].rstrip()), None
+                    (
+                        e
+                        for e in scheduled_events
+                        if e.name == event_data["name"].rstrip()
+                    ),
+                    None,
                 )
 
                 await self.handle_events(guild, event_data, scheduled_event)

@@ -6,6 +6,7 @@ payloads provided as links.
 """
 
 import base64
+import logging
 import time
 import re
 
@@ -14,7 +15,13 @@ from discord import app_commands
 from discord.ext import commands
 from selenium.webdriver.firefox.options import Options
 from selenium import webdriver
-from . import ctf  # pylint: disable=no-name-in-module
+
+try:
+    from ctf import corn, exss, mlb  # pylint: disable=no-name-in-module
+except ImportError:
+    logging.warning("CTF module not found, using default values")
+    corn = {"password": "flag"}
+    exss = mlb = {"flag": "flag"}
 
 
 class Browser(commands.Cog, name="browser"):
@@ -123,21 +130,21 @@ class Browser(commands.Cog, name="browser"):
         username = self.browser.find_element_by_id("username")
         password = self.browser.find_element_by_id("password")
         username.send_keys("admin")
-        password.send_keys(ctf.corn["password"])
+        password.send_keys(corn["password"])
         self.browser.find_element_by_name("login").click()
 
     def exss(self) -> None:
         """This function sets up for the **exss** challenge"""
         self.browser.get(
             "http://challs.studsec.nl:5080/?"
-            + base64.b64encode(ctf.exss["flag"].encode()).decode("ascii")
+            + base64.b64encode(exss["flag"].encode()).decode("ascii")
         )
 
     def my_little_browser(self) -> None:
         """This function sets up for the **my little browser** challenge"""
         self.browser.get(
             "http://challs.studsec.nl:5480/?page="
-            + base64.b64encode(ctf.mlb["flag"].encode()).decode("ascii")
+            + base64.b64encode(mlb["flag"].encode()).decode("ascii")
         )
 
 

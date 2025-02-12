@@ -13,14 +13,15 @@ To install the needed dependencies, first make sure you have [Poetry](https://py
 poetry install
 ```
 
-Then, to run the bot needs a discord token, which needs to be put in a new
- `.env` file like so
+Then, to run the bot needs a discord token and server id, which needs to be put
+ in a new `.env` file like so
 
 ```env
 DISCORD_TOKEN=your_token_here
+SERVER_ID=server_id_here
 ```
 
-After the discord token is set, you can run the bot using
+After the `.env` is set, you can run the bot locally using
 
 ```sh
 poetry run bot
@@ -39,7 +40,7 @@ The recommended development environment to develop in is using a python venv.
  You can enter one provided by poetry using
 
 ```sh
-poetry env use 3.8 # make sure python3.8 is installed
+poetry env use 3.9 # make sure python3.9 is installed
 poetry shell
 ```
 

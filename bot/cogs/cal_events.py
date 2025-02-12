@@ -35,7 +35,7 @@ class CalendarEvents(BaseEvents, name="cal_events"):
         channel,
     ):
         """Handles existing events by updating or deleting them"""
-        with sqlite3.connect("events.db") as conn:
+        with sqlite3.connect(f"{self.shared}/events.db") as conn:
             conn.row_factory = sqlite3.Row
             row = conn.execute(
                 "SELECT * FROM events WHERE event_id = ?",
@@ -58,7 +58,7 @@ class CalendarEvents(BaseEvents, name="cal_events"):
             await message.delete()
 
             await scheduled_event.delete()
-            with sqlite3.connect("events.db") as conn:
+            with sqlite3.connect(f"{self.shared}/events.db") as conn:
                 conn.execute(
                     "DELETE FROM events WHERE event_id = ?", (scheduled_event.id,)
                 )
@@ -104,7 +104,7 @@ class CalendarEvents(BaseEvents, name="cal_events"):
         if reaction:
             await message.add_reaction(reaction)
 
-        with sqlite3.connect("events.db") as conn:
+        with sqlite3.connect(f"{self.shared}/events.db") as conn:
             conn.execute(
                 "INSERT INTO events (event_id, message_id, is_preview) VALUES (?, ?, ?)",
                 (
