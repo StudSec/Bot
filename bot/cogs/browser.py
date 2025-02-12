@@ -9,6 +9,7 @@ import base64
 import logging
 import time
 import re
+from collections.abc import Callable
 
 import discord
 from discord import app_commands
@@ -17,7 +18,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium import webdriver
 
 try:
-    from ctf import corn, exss, mlb  # pylint: disable=no-name-in-module
+    from .ctf import corn, exss, mlb  # type: ignore
 except ImportError:
     logging.warning("CTF module not found, using default values")
     corn = {"password": "flag"}
@@ -31,7 +32,7 @@ class Browser(commands.Cog, name="browser"):
         self.browser = None
 
         self.bot = bot
-        self.challenges = {
+        self.challenges: dict[str, Callable[[webdriver.Firefox], None]] = {
             "corn": self.corn,
             "exss": self.exss,
             "mlb": self.my_little_browser,
@@ -91,18 +92,19 @@ class Browser(commands.Cog, name="browser"):
 
         await interaction.response.send_message("Visiting link...")
         message = await interaction.original_response()
-        self.setup_challenge(challenge_choice)
+        browser = self.setup_challenge(challenge_choice)
 
         try:
-            self.browser.get(url)
+            browser.get(url)
         except Exception:  # pylint: disable=broad-exception-caught
-            return await message.edit(content="Unable to visit link!")
+            await message.edit(content="Unable to visit link!")
+            return
 
         time.sleep(10)  # Give the JS a second to execute
         await message.edit(content="Visited link!")
-        self.browser.quit()
+        browser.quit()
 
-    def setup_challenge(self, challenge: str) -> None:
+    def setup_challenge(self, challenge: str) -> webdriver.Firefox:
         """
         This function does browser setup thats common, and then calls the
         specific challenge setup function
@@ -114,35 +116,40 @@ class Browser(commands.Cog, name="browser"):
         opts.set_headless()
 
         profile = webdriver.FirefoxProfile()
-        profile.DEFAULT_PREFERENCES["frozen"][
+        profile.DEFAULT_PREFERENCES["frozen"][  # type: ignore # pylint: disable=unsubscriptable-object
             "network.cookie.cookieBehavior"
-        ] = 4  # pylint: disable=unsubscriptable-object
-        self.browser = webdriver.Firefox(options=opts, firefox_profile=profile)
-        self.browser.set_page_load_timeout(10)
-        self.browser.delete_all_cookies()
+        ] = 4
+        browser = webdriver.Firefox(options=opts, firefox_profile=profile)
+        browser.set_page_load_timeout(10)
+        browser.delete_all_cookies()
 
-        self.challenges[challenge]()
-        self.browser.get("about:newtab")
+        self.challenges[challenge](browser)
 
-    def corn(self) -> None:
+        browser.get("about:newtab")
+        return browser
+
+    @staticmethod
+    def corn(browser: webdriver.Firefox) -> None:
         """This function sets up for the **corn** challenge"""
-        self.browser.get("http://challs.studsec.nl:5100/login")
-        username = self.browser.find_element_by_id("username")
-        password = self.browser.find_element_by_id("password")
+        browser.get("http://challs.studsec.nl:5100/login")
+        username = browser.find_element_by_id("username")
+        password = browser.find_element_by_id("password")
         username.send_keys("admin")
         password.send_keys(corn["password"])
-        self.browser.find_element_by_name("login").click()
+        browser.find_element_by_name("login").click()
 
-    def exss(self) -> None:
+    @staticmethod
+    def exss(browser: webdriver.Firefox) -> None:
         """This function sets up for the **exss** challenge"""
-        self.browser.get(
+        browser.get(
             "http://challs.studsec.nl:5080/?"
             + base64.b64encode(exss["flag"].encode()).decode("ascii")
         )
 
-    def my_little_browser(self) -> None:
+    @staticmethod
+    def my_little_browser(browser: webdriver.Firefox) -> None:
         """This function sets up for the **my little browser** challenge"""
-        self.browser.get(
+        browser.get(
             "http://challs.studsec.nl:5480/?page="
             + base64.b64encode(mlb["flag"].encode()).decode("ascii")
         )

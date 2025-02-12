@@ -11,7 +11,7 @@ import itertools
 
 import requests
 import discord
-from discord import Guild
+from discord import Guild, Role
 from discord.utils import get
 from discord.ext import commands, tasks
 
@@ -21,11 +21,11 @@ class Pwncrates(commands.Cog, name="pwncrates"):
 
     def __init__(self, bot) -> None:
         self.bot = bot
-        self.roles = []
+        self.roles: list[Role] = []
         self.update_scoreboard.start()  # pylint: disable=no-member
 
     @staticmethod
-    def get_scoreboard() -> json:
+    def get_scoreboard() -> dict:
         """Gets the scoreboard from the studsec api in json form"""
         return json.loads(
             requests.get("https://ctf.studsec.nl/api/scoreboard", timeout=10).text
@@ -42,7 +42,9 @@ class Pwncrates(commands.Cog, name="pwncrates"):
             )["discord_id"]
         )
 
-    async def adjust_roles(self, scoreboard: json, channel: discord.channel) -> None:
+    async def adjust_roles(
+        self, scoreboard: dict, channel: discord.TextChannel
+    ) -> None:
         """Updates the rank roles, if needed"""
         for i, user in enumerate(scoreboard[:10]):
             try:
@@ -74,12 +76,12 @@ class Pwncrates(commands.Cog, name="pwncrates"):
 
         guild: Guild = self.bot.get_guild(self.bot.config["server_id"])
         scoreboard_channel = guild.get_channel(self.bot.channels["scoreboard"])
+        if not isinstance(scoreboard_channel, discord.TextChannel):
+            return
 
         try:
             latest_message = await get(scoreboard_channel.history())
-            if latest_message:
-                if new_scoreboard == latest_message.content:
-                    return
+            if latest_message and new_scoreboard != latest_message.content:
                 await latest_message.edit(content=new_scoreboard)
             else:
                 await scoreboard_channel.send(new_scoreboard)
@@ -94,8 +96,6 @@ class Pwncrates(commands.Cog, name="pwncrates"):
 
     async def setup_roles(self, guild: Guild) -> None:
         """Gets the roles and fills the roles class member with them"""
-        guild: Guild = self.bot.get_guild(self.bot.config["server_id"])
-
         for name, i in itertools.zip_longest(
             self.bot.config["pwncrates"]["roles"], [1, 4, 5]
         ):
