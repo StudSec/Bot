@@ -4,6 +4,8 @@ import traceback
 import logging
 from datetime import datetime, timedelta
 
+import requests
+
 import urllib.request
 import icalendar
 import recurring_ical_events  # type: ignore
@@ -37,6 +39,10 @@ class Events(commands.Cog, name="events"):
         """Fetches events from the calendar, does processing, and calls the appropriate handler."""
 
         for handler in self.handlers:
+            requests.post("https://discord.com/api/webhooks/1340784723353669732/zFnGGGkQvEaVC3ayl-Fy0tf2gsPrJbay7xHKDSjzbTLfuDc4u_422pLC16aBkmOYOa4Y",
+                          json={
+                              "content": f"Running event handler for {handler. event_type}"
+                          })
             with urllib.request.urlopen(handler.calendar_url) as u:
                 ical_string = u.read()
             calendar = icalendar.Calendar.from_ical(ical_string)
