@@ -38,7 +38,7 @@ ENV POETRY_NO_INTERACTION=1 \
     POETRY_CACHE_DIR=/tmp/poetry_cache
 
 WORKDIR /app
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml ./
 RUN pip install poetry==1.8.3
 RUN if [ $DEV ]; then \
     poetry install --with dev --no-root && rm -rf $POETRY_CACHE_DIR; \
