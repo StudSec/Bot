@@ -8,9 +8,10 @@ import os
 import logging
 import json
 import sqlite3
+import sys
 
 import discord
-from discord import app_commands, PermissionOverwrite
+from discord import app_commands, PermissionOverwrite, Interaction
 from discord.ext import commands
 from discord.ext.commands import Context
 from dotenv import load_dotenv
@@ -26,10 +27,17 @@ class StudBot(commands.Bot):
         - The different configurations inside the class, such as the path;
         - The intents and sets the prefix for `super`;
         """
-        self.channels = {}
+        self.channels: dict[str, int] = {}
         self.path = f"{os.path.realpath(os.path.dirname(__file__))}"
+        self.shared = os.path.abspath(f"{self.path}/..") + "/shared"
+
         with open(f"{self.path}/config.json", "r", encoding="utf-8") as file:
             self.config = json.load(file)
+        if server_id := os.getenv("SERVER_ID"):
+            self.config["server_id"] = int(server_id)
+        else:
+            logging.error("SERVER_ID not set")
+            sys.exit(1)
 
         intents = discord.Intents.default()
         intents.members = True
@@ -43,6 +51,10 @@ class StudBot(commands.Bot):
     async def setup_channels(self) -> None:
         """Gets or sets up the channels, possible restricted, and sets the channels class member"""
         guild = self.get_guild(self.config["server_id"])
+        if not guild:
+            logging.error("Guild not found")
+            return
+
         public = self.config["public"]
         private = self.config["private"]
 
@@ -50,20 +62,22 @@ class StudBot(commands.Bot):
             channel = next((c for c in guild.channels if c.name == name), None)
             if not channel:
                 logging.info("Creating channel %s", name)
+                args = {"name": name}
 
-                overwrites = None
                 if name in private["channels"]:
-                    overwrites = {
+                    args["overwrites"] = {
                         guild.default_role: PermissionOverwrite(view_channel=False),
+                        **{
+                            role: PermissionOverwrite(view_channel=True)
+                            for role in guild.roles
+                            if role.name in private["roles"]
+                        },
                     }
-                    for role in (r for r in guild.roles if r.name in private["roles"]):
-                        overwrites[role] = PermissionOverwrite(view_channel=True)
+
                 channel = (
-                    await guild.create_voice_channel(name=name, overwrites=overwrites)
+                    await guild.create_voice_channel(**args)
                     if "voice" in name
-                    else await guild.create_text_channel(
-                        name=name, overwrites=overwrites
-                    )
+                    else await guild.create_text_channel(**args)
                 )
 
             self.channels[name] = channel.id
@@ -71,9 +85,10 @@ class StudBot(commands.Bot):
 
     async def create_db(self) -> None:
         """Creates the database for the events cog"""
-        with sqlite3.connect("events.db") as conn:
+        with sqlite3.connect(f"{self.shared}/events.db") as conn:
             conn.execute(
-                "CREATE TABLE IF NOT EXISTS events (event_id INTEGER PRIMARY KEY, message_id INTEGER, is_preview INTEGER)"
+                "CREATE TABLE IF NOT EXISTS events "
+                + "(event_id INTEGER PRIMARY KEY, message_id INTEGER, is_preview INTEGER)"
             )
 
     async def load_cogs(self) -> None:
@@ -109,12 +124,13 @@ class StudBot(commands.Bot):
         so commands.CommandNotFound must be ignored
         """
         if isinstance(error, commands.CommandNotFound):
-            return await context.send("This command doesn't exist!", ephemeral=True)
-        if isinstance(error, commands.MissingPermissions):
-            return await context.send("Missing permissions!", ephemeral=True)
-        raise error
+            await context.send("This command doesn't exist!", ephemeral=True)
+        elif isinstance(error, commands.MissingPermissions):
+            await context.send("Missing permissions!", ephemeral=True)
+        else:
+            raise error
 
-    async def on_tree_error(self, interaction: discord.Interaction, error) -> None:
+    async def on_tree_error(self, interaction: Interaction, error) -> None:
         """Handle errors from slash commands, such as cooldown
 
         Args:
@@ -135,8 +151,11 @@ def main() -> None:
 
     load_dotenv()
     bot = StudBot()
-    bot.tree.on_error = bot.on_tree_error
-    bot.run(os.getenv("DISCORD_TOKEN"), log_level=logging.INFO)
+    bot.tree.on_error = bot.on_tree_error  # type: ignore
+    if token := os.getenv("DISCORD_TOKEN"):
+        bot.run(token, log_level=logging.INFO)
+    else:
+        logging.error("DISCORD_TOKEN not set")
 
 
 if __name__ == "__main__":
