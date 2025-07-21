@@ -1,7 +1,6 @@
 FROM python:3.9-slim
 
 # Copy over rest of the bot
-COPY .env ./
 COPY bot ./bot
 RUN /root/.local/bin/poetry install
 
