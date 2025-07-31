@@ -1,13 +1,3 @@
-FROM python:3.9-slim
-
-# Copy over rest of the bot
-COPY .env ./
-COPY bot ./bot
-RUN /root/.local/bin/poetry install
-
-# Unbuffered to flush stdout
-ENTRYPOINT /root/.local/bin/poetry run bot
-
 FROM python:3.9-slim AS base
 
 ARG DEV=false
@@ -54,7 +44,6 @@ FROM base AS runtime
 
 WORKDIR /app
 COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
-COPY .env ./
 COPY bot ./bot
 
 ENTRYPOINT ["python", "-m", "bot.main"]
