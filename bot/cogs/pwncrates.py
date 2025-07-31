@@ -90,6 +90,7 @@ class Pwncrates(commands.Cog, name="pwncrates"):
             return
         except discord.errors.Forbidden:
             logging.error("Failed to set roles; Missing permission role")
+            logging.error("Full traceback: %s", traceback.format_exc())
         except Exception:  # pylint: disable=broad-exception-caught
             logging.error("Error in pwncrates, %s", traceback.format_exc())
             return

@@ -1,4 +1,4 @@
-"""This module is the main entrypoint of the bot. 
+"""This module is the main entrypoint of the bot.
 
 In this file, the `StudBot` is defined, initialized, and extended with the cogs.
 Run this file using `poetry` as described in the `README.md`
