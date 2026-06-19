@@ -37,12 +37,12 @@ class Events(commands.Cog, name="events"):
     @tasks.loop(minutes=5)
     async def update_events(self):
         """Fetches events from the calendar, does processing, and calls the appropriate handler."""
+        self.guild = self.bot.get_guild(self.bot.config["server_id"])
+        if not self.guild:
+            logging.error("Guild not found, skipping update")
+            return
 
         for handler in self.handlers:
-            requests.post("https://discord.com/api/webhooks/1340784723353669732/zFnGGGkQvEaVC3ayl-Fy0tf2gsPrJbay7xHKDSjzbTLfuDc4u_422pLC16aBkmOYOa4Y",
-                          json={
-                              "content": f"Running event handler for {handler. event_type}"
-                          })
             with urllib.request.urlopen(handler.calendar_url) as u:
                 ical_string = u.read()
             calendar = icalendar.Calendar.from_ical(ical_string)
@@ -80,7 +80,8 @@ class Events(commands.Cog, name="events"):
             event_data["name"] = event_data["name"][:95] + "..."
 
         scheduled_event = next(
-            (e for e in scheduled_events if e.name == event_data["name"].rstrip()),
+            (e for e in scheduled_events if e.name ==
+             event_data["name"].rstrip()),
             None,
         )
 
