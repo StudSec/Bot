@@ -7,8 +7,8 @@ RUN pipx list
 
 # Setup the geckodriver for selenium
 WORKDIR /tmp
-RUN wget https://github.com/mozilla/geckodriver/releases/download/v0.29.1/geckodriver-v0.29.1-linux64.tar.gz
-RUN tar xvfz geckodriver-v0.29.1-linux64.tar.gz
+RUN wget -q https://github.com/mozilla/geckodriver/releases/download/v0.37.1/geckodriver-v0.37.1-linux64.tar.gz
+RUN tar -xzf geckodriver-v0.37.1-linux64.tar.gz
 RUN chmod +x geckodriver
 RUN mv geckodriver /usr/local/bin
 

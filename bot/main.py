@@ -106,7 +106,8 @@ class StudBot(commands.Bot):
         logging.info("-" * 20)
         logging.info("Logged in as: %s", colored(self.user.name, "blue"))
         logging.info("User ID is: %s", colored(self.user.id, "blue"))
-        logging.info("discord.py version: %s", colored(discord.__version__, "blue"))
+        logging.info("discord.py version: %s",
+                     colored(discord.__version__, "blue"))
         logging.info("Connected to:")
         async for server in self.fetch_guilds():
             logging.info("+ %s", colored(server, "blue"))
@@ -139,7 +140,8 @@ class StudBot(commands.Bot):
         """
         if isinstance(error, app_commands.CommandOnCooldown):
             return await interaction.response.send_message(
-                f"You are on cooldown. Try again in **{round(error.retry_after)} seconds**!",
+                f"""You are on cooldown. Try again in **{
+                    round(error.retry_after)} seconds**!""",
                 ephemeral=True,
             )
         raise error

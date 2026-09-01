@@ -113,13 +113,9 @@ class Browser(commands.Cog, name="browser"):
             challenge: a string of the challenge name
         """
         opts = Options()
-        opts.set_headless()
-
-        profile = webdriver.FirefoxProfile()
-        profile.DEFAULT_PREFERENCES["frozen"][  # type: ignore # pylint: disable=unsubscriptable-object
-            "network.cookie.cookieBehavior"
-        ] = 4
-        browser = webdriver.Firefox(options=opts, firefox_profile=profile)
+        opts.add_argument("--headless")
+        opts.set_preference("network.cookie.cookieBehavior", 4)
+        browser = webdriver.Firefox(options=opts)
         browser.set_page_load_timeout(10)
         browser.delete_all_cookies()
 
