@@ -10,7 +10,7 @@ import logging
 import time
 import re
 from collections.abc import Callable
-
+import os
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -21,8 +21,9 @@ try:
     from .ctf import corn, exss, mlb  # type: ignore
 except ImportError:
     logging.warning("CTF module not found, using default values")
-    corn = {"password": "flag"}
-    exss = mlb = {"flag": "flag"}
+    corn = {"password": os.environ.get("CORN_PASSWORD")}
+    exss = {"flag": os.environ.get("EXSS_FLAG")}
+    mlb = {"flag": os.environ.get("MLB_FLAG")}
 
 
 class Browser(commands.Cog, name="browser"):
