@@ -4,6 +4,7 @@ To register changes to commands, the bot must be resynced
 """
 
 from discord.ext import commands
+from discord.ext.commands import has_permissions
 from discord.ext.commands import Context
 
 
@@ -17,7 +18,7 @@ class Admin(commands.Cog, name="admin"):
         name="sync",
         description="Synchonizes the slash commands.",
     )
-    @commands.has_permissions(administrator=True)
+    @has_permissions(administrator=True)
     async def sync(self, ctx: Context) -> None:
         """
         Synchonizes the slash commands.
@@ -30,7 +31,7 @@ class Admin(commands.Cog, name="admin"):
         name="list",
         description="List loaded cogs.",
     )
-    @commands.has_permissions(administrator=True)
+    @has_permissions(administrator=True)
     async def list_cogs(self, ctx: Context) -> None:
         """
         Lists loaded cogs
